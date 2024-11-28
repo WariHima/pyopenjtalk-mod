@@ -26,6 +26,8 @@ from .openjtalk.text2mecab cimport text2mecab
 from .openjtalk.mecab2njd cimport mecab2njd
 from .openjtalk.njd2jpcommon cimport njd2jpcommon
 
+from .sbv2_hougen.hougen import DialectRule, apply_dialect_diff, apply_keihan_accent_diff
+
 cdef njd_node_get_string(_njd.NJDNode* node):
     return (<bytes>(_njd.NJDNode_get_string(node))).decode("utf-8")
 
@@ -189,7 +191,7 @@ cdef class OpenJTalk(object):
         return Mecab_load_with_userdic(self.mecab, dn_mecab, userdic)
 
 
-    def run_frontend(self, text):
+    def run_frontend(self, text, dialect_rule =DialectRule.Standard, speaking_style_rules = []):
         """Run OpenJTalk's text processing frontend
         """
         cdef char buff[8192]
@@ -210,12 +212,50 @@ cdef class OpenJTalk(object):
 
         feature = njd2feature(self.njd)
         feature = apply_original_rule_before_chaining(feature)
+
+
+        kata_list = []
+        accent_list = []
+        pos_list = [] 
+        mora_list = []
+
+        if dialect_rule != DialectRule.Standard or speaking_style_rules != []:
+
+            for f in feature:
+                kata_list.append(f["pron"])
+                accent_list.append(f["acc"])
+                pos_list.append(f["pos"])
+                mora_list.append(f["mora_size"])
+            
+            kata_list, accent_list = apply_dialect_diff(
+                    kata_list,
+                    accent_list,
+                    pos_list,
+                    dialect_rule,
+                    speaking_style_rules
+                    )
+                
+            if dialect_rule == DialectRule.Kansai:
+                accent_list = apply_keihan_accent_diff(
+                    kata_list,
+                    accent_list,
+                    pos_list,
+                )
+
+            for i in range(len(feature)):
+
+                feature[i]["pron"] = kata_list[i]
+                feature[i]["acc"] = accent_list[i]
+            
         NJD_refresh(self.njd)
         feature2njd(self.njd, feature)
 
         _njd.njd_set_digit(self.njd)
         _njd.njd_set_accent_phrase(self.njd)
-        _njd.njd_set_accent_type(self.njd)
+
+        if dialect_rule != DialectRule.Kansai:
+            _njd.njd_set_accent_type(self.njd)
+
         _njd.njd_set_unvoiced_vowel(self.njd)
         _njd.njd_set_long_vowel(self.njd)
         feature = njd2feature(self.njd)
@@ -250,10 +290,10 @@ cdef class OpenJTalk(object):
 
         return labels
 
-    def g2p(self, text, kana=False, join=True):
+    def g2p(self, text, kana=False, join=True, dialect_rule =DialectRule.Standard, speaking_style_rules = []):
         """Grapheme-to-phoeneme (G2P) conversion (Cython implementation)
         """
-        njd_features = self.run_frontend(text)
+        njd_features = self.run_frontend(text,dialect_rule, speaking_style_rules )
 
         if not kana:
             labels = self.make_label(njd_features)

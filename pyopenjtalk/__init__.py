@@ -31,6 +31,8 @@ from .utils import (
     retreat_acc_nuc,
 )
 
+from .sbv2_hougen.hougen import DialectRule, SpeakingStyleRule
+
 _file_manager = ExitStack()
 atexit.register(_file_manager.close)
 
@@ -75,6 +77,8 @@ def g2p(
     join: bool = True,
     run_marine: bool = False,
     use_vanilla: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard,
+    speaking_style_rules: list[SpeakingStyleRule] = []
 ) -> Union[List[str], str]:
     """Grapheme-to-phoeneme (G2P) conversion
 
@@ -95,7 +99,8 @@ def g2p(
     Returns:
         Union[List[str], str]: G2P result in 1) str if join is True 2) List[str] if join is False.
     """
-    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla)
+    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla,
+                                dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
 
     if not kana:
         labels = make_label(njd_features)
@@ -184,7 +189,8 @@ def preserve_noun_accent(
 
 
 def extract_fullcontext(
-    text: str, run_marine: bool = False, use_vanilla: bool = False
+    text: str, run_marine: bool = False, use_vanilla: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = []
 ) -> List[str]:
     """Extract full-context labels from text
 
@@ -199,7 +205,9 @@ def extract_fullcontext(
     Returns:
         List[str]: List of full-context labels
     """
-    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla)
+    njd_features = run_frontend(
+        text, run_marine=run_marine, use_vanilla=use_vanilla,
+        dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
     return make_label(njd_features)
 
 
@@ -255,7 +263,8 @@ def tts(
 
 
 def run_frontend(
-    text: str, run_marine: bool = False, use_vanilla: bool = False
+    text: str, run_marine: bool = False, use_vanilla: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = []
 ) -> List[NJDFeature]:
     """Run OpenJTalk's text processing frontend
 
@@ -274,7 +283,7 @@ def run_frontend(
     if _global_jtalk is None:
         _lazy_init()
         _global_jtalk = OpenJTalk(dn_mecab=OPEN_JTALK_DICT_DIR)
-    njd_features = _global_jtalk.run_frontend(text)
+    njd_features = _global_jtalk.run_frontend(text, dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
     if run_marine:
         pred_njd_features = estimate_accent(njd_features)
         njd_features = preserve_noun_accent(njd_features, pred_njd_features)
