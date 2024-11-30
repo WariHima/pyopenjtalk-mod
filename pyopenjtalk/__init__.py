@@ -30,6 +30,7 @@ from .utils import (
     modify_kanji_yomi,
     retreat_acc_nuc,
 )
+from .mlask.mlask import MLAsk
 
 _file_manager = ExitStack()
 atexit.register(_file_manager.close)
@@ -67,7 +68,6 @@ def _lazy_init() -> None:
     # pyopenjtalk-plus では辞書のダウンロード処理は削除されているが、
     # _lazy_init() を直接呼び出している VOICEVOX などへの互換性のために残置している
     pass
-
 
 def g2p(
     text: str,
@@ -253,9 +253,8 @@ def tts(
     """
     return synthesize(extract_fullcontext(text, run_marine=run_marine), speed, half_tone)
 
-
 def run_frontend(
-    text: str, run_marine: bool = False, use_vanilla: bool = False
+    text: str, run_marine: bool = False, use_vanilla: bool = False, use_mlask: bool = False
 ) -> List[NJDFeature]:
     """Run OpenJTalk's text processing frontend
 
@@ -301,6 +300,15 @@ def make_label(njd_features: List[NJDFeature]) -> List[str]:
         _global_jtalk = OpenJTalk(dn_mecab=OPEN_JTALK_DICT_DIR)
     return _global_jtalk.make_label(njd_features)
 
+def emotion_label(text: str):
+    global _global_jtalk
+    if _global_jtalk is None:
+        _lazy_init()
+        _global_jtalk = OpenJTalk(dn_mecab=OPEN_JTALK_DICT_DIR)
+    njd_features = _global_jtalk.run_frontend(text)
+    mlask = MLAsk()
+    emotion_label = mlask.analyze(njd_features)
+    return emotion_label
 
 def mecab_dict_index(path: str, out_path: str, dn_mecab: Union[str, None] = None) -> None:
     """Create user dictionary

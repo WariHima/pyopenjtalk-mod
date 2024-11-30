@@ -72,6 +72,9 @@ def test_njd_features_marine():
     ]
     assert njd_features == expected_feature
 
+def test_emotionlabel():
+    result = pyopenjtalk.emotion_label('彼女のことが嫌いではない！(;´Д`)')
+    print(result)
 
 def test_fullcontext():
     features = pyopenjtalk.run_frontend("こんにちは")
