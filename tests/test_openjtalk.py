@@ -89,6 +89,13 @@ def test_fullcontext_marine():
     for a, b in zip(labels, labels2):
         assert a == b
 
+def test_njd_other_pron_mod():
+    njd_features = pyopenjtalk.run_frontend("東第二高　ドル高　ユーロ高")
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    
+    assert pron == "ヒガシダイニコードルダカユーロダカ"
+
+
 
 def test_jtalk():
     for text in [

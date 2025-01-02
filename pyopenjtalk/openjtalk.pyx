@@ -4,6 +4,7 @@
 
 import errno
 import numpy as np
+import re
 from contextlib import contextmanager
 from threading import Lock
 
@@ -259,6 +260,8 @@ cdef class OpenJTalk(object):
 
         feature = njd2feature(self.njd)
         feature = apply_original_rule_before_chaining(feature)
+        feature = apply_other_pron_mod_rule(feature)
+        
 
 
         kata_list = []
@@ -440,3 +443,55 @@ def apply_original_rule_before_chaining(njd_features):
             njd_features[i+1]["chain_flag"] = 1
 
     return njd_features
+
+def apply_other_pron_mod_rule(njd_features):
+
+    """この実装での連濁化のルール
+    ここでは特殊なもののみ随時追加方式で実装する
+    先頭の文字の最後が "っん" 以外すべての場合
+    先頭が　かさた行以外
+
+    wikipediaより
+    このうちカ行・サ行・タ行は単純な有声化だが、ハ行は日本語の歴史において /p/→ /ɸ/ → /h/ の変化（唇音退化）が起きたため変則的になっている。
+
+    次に示すように、連濁は、無声子音が母音（有声音）に挟まれた時に、隣りの音の特徴に影響される同化現象であると理解されている[要出典]。"""
+
+    
+    """＜○○高（高校）と読ませるアルゴリズム＞
+    前が
+    漢字のみで構成されているもの
+    もしくは数詞でなくフィラーか名詞の場合
+
+    後にだいたい名詞以外の
+    助詞、動詞、形容詞などや
+    後ろが漢字のみで構成されてない名詞
+    が続く場合に　こう　と読ませる
+
+    こうとよむばあい　連濁化しない"""
+    KANJI_PATTERN = re.compile(r"[\u4E00-\u9FFF\u3400-\u4DBF\u3005]+")
+
+    
+    for i, njd in enumerate(njd_features[1:]):
+        if njd_features[i]["string"] == "高" :
+            if njd_features[i-1]["pos"] in ["名詞"] and KANJI_PATTERN.fullmatch( njd_features[i-1]["string"] ):
+                njd_features[i]["pron"] = "コー"
+    return njd_features
+    
+    """＜何を読み分けるアルゴリズム＞
+    参考用
+    何　の後ろがひらがなで一文字の助詞でないばあい何を”なん”と読むことが多い
+    ホワイトリスト形式で追加していく
+
+    予想されるパターン
+    何じゃ　なんじゃ
+    何が何でも　＝　なにがなんでも　
+    何とも　＝　なんとも
+    何て　＝　なんてこと
+    何で　＝　なんで
+    そもそも　なん　とよませたいときはひらがなで書くことのほうが多いが
+    
+    for i, njd in enumerate(njd_features[:-1]):
+        if njd_features[i]["string"] == "何" and njd_features[i+1]["string"] in ["でも", "じゃ", "とも", "て", "で"] :
+            njd_features[i]["pron"] = "ナン"
+    
+    """
