@@ -1,6 +1,7 @@
 # coding: utf-8
 # cython: boundscheck=True, wraparound=True
 # cython: c_string_type=unicode, c_string_encoding=ascii
+# cython: language_level=3
 
 import errno
 import numpy as np
@@ -166,7 +167,7 @@ def _generate_lock_manager():
     return f
 
 
-cdef class OpenJTalk(object):
+cdef class OpenJTalk:
     """OpenJTalk
 
     Args:
@@ -414,7 +415,10 @@ def build_mecab_dictionary(bytes dn_mecab):
         "-t",
         "utf-8",
     ]
-    return _mecab_dict_index(9, argv)
+    cdef int ret
+    with nogil:
+        ret = _mecab_dict_index(9, argv)
+    return ret
 
 def apply_original_rule_before_chaining(njd_features):
     for i, njd in enumerate(njd_features[:-1]):

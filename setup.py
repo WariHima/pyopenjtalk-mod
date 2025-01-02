@@ -4,7 +4,6 @@ import sys
 from glob import glob
 from itertools import chain
 from os.path import exists, join
-from subprocess import run
 
 import numpy as np
 import setuptools.command.build_ext
@@ -14,7 +13,7 @@ from setuptools import Extension, find_packages, setup
 
 platform_is_windows = sys.platform == "win32"
 
-version = "0.3.4-post7"
+version = "0.3.4-post10"
 
 msvc_extra_compile_args_config = [
     "/source-charset:utf-8",
@@ -28,6 +27,18 @@ def msvc_extra_compile_args(compile_args):
     return list(chain(compile_args, xs))
 
 
+msvc_define_macros_config = [
+    ("_CRT_NONSTDC_NO_WARNINGS", None),
+    ("_CRT_SECURE_NO_WARNINGS", None),
+]
+
+
+def msvc_define_macros(macros):
+    mns = set([i[0] for i in macros])
+    xs = filter(lambda x: x[0] not in mns, msvc_define_macros_config)
+    return list(chain(macros, xs))
+
+
 class custom_build_ext(setuptools.command.build_ext.build_ext):
     def build_extensions(self):
         compiler_type_is_msvc = self.compiler.compiler_type == "msvc"
@@ -35,6 +46,9 @@ class custom_build_ext(setuptools.command.build_ext.build_ext):
             if compiler_type_is_msvc:
                 entry.extra_compile_args = msvc_extra_compile_args(
                     entry.extra_compile_args if hasattr(entry, "extra_compile_args") else []
+                )
+                entry.define_macros = msvc_define_macros(
+                    entry.define_macros if hasattr(entry, "define_macros") else []
                 )
 
         setuptools.command.build_ext.build_ext.build_extensions(self)
@@ -91,7 +105,7 @@ if not exists(join(src_top, "mecab", "src", "config.h")):
 
     # NOTE: The wrapped OpenJTalk does not depend on HTS_Engine,
     # but since HTSEngine is included in CMake's dependencies, it refers to a dummy path.
-    r = run(["cmake", "..", "-DHTS_ENGINE_INCLUDE_DIR=.", "-DHTS_ENGINE_LIB=dummy"])
+    r = subprocess.run(["cmake", "..", "-DHTS_ENGINE_INCLUDE_DIR=.", "-DHTS_ENGINE_LIB=dummy"])
     r.check_returncode()
     os.chdir(cwd)
 
@@ -150,6 +164,7 @@ ext_modules += [
         language="c++",
         define_macros=[
             ("AUDIO_PLAY_NONE", None),
+            ("NPY_NO_DEPRECATED_API", "NPY_1_7_API_VERSION"),
         ],
     )
 ]
@@ -264,7 +279,6 @@ setup(
         "Programming Language :: Cython",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
