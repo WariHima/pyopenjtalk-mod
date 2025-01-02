@@ -11,16 +11,24 @@ pyopenjtalk-plus は、各フォークでの改善を一つのコードベース
 - **パッケージ名を `pyopenjtalk-plus` に変更**
   - ライブラリ名は `pyopenjtalk` から変更されておらず、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) 本家同様に `import pyopenjtalk` でインポートできる
   - [pyopenjtalk](https://github.com/r9y9/pyopenjtalk) 本家のドロップイン代替として利用できる
-- **明示的に Python 3.11 / 3.12 をサポート対象に追加**
-  - CI 対象の Python バージョンも 3.11 / 3.12 メインに変更した
+- **明示的に Python 3.11 / 3.12 / 3.13 をサポート対象に追加**
+  - CI 対象の Python バージョンも 3.11 以降メインに変更した
 - **Windows・macOS (x64 / arm64)・Linux すべての事前ビルド済み wheels を PyPI に公開**
   - pyopenjtalk は hts_engine_API・OpenJTalk・Cython に依存しており、ビルド環境の構築難易度が比較的高い
     - 特に Windows においては MSVC のインストールが必要となる
   - 事前ビルド済みの wheels を PyPI に公開することで、ビルド環境のない PC でも簡単にインストール可能にすることを意図している
 - **Python 側と Cython 側の両方に型ヒント (Type Hints) を追加**
   - Cython モジュールの型ヒントは [sabonerune/pyopenjtalk (enh/add-stub-files ブランチ)](https://github.com/sabonerune/pyopenjtalk/tree/enh/add-stub-files) での変更を一部改変の上で取り込んだもの
-- **依存関係の numpy を 1.x 系に固定**
-  - numpy 2.x では互換性のない変更が多数行われており、もとよりレガシーな設計である現行の pyopenjtalk(-plus) では動作しないと考えられるため
+- **Cython を 3.0 系に更新**
+  - https://github.com/cython/cython/issues/5982 の通り、Python 3.13 では一部の非推奨 C API が削除されている
+  - Cython 0.x 系では Python 3.13 以降のビルドに失敗するため、Cython 3.0 系に更新した
+- **numpy 2.x 系に対応**
+  - numpy 2.x 系では互換性のない変更が多数行われているが、[公式ドキュメント](https://numpy.org/doc/stable/dev/depending_on_numpy.html#numpy-2-0-specific-advice) によると「numpy 2.x 系でビルドした wheel であれば numpy 1.x 系でも動作する」らしい
+    - pyopenjtalk-plus では、numpy 2.x 系でビルドした wheel を公開することで対応した
+  - ただし、marine (marine-plus) のコードは numpy 2.x 系との互換性がないため (OverflowError が発生する) 、marine と併用する際は引き続き numpy 1.x 系が必要となる
+- **`pyopenjtalk.run_frontend()` 関数に CLI インターフェイスを追加**
+  - コマンドライン引数としてテキストを受け取り、そのテキストを処理した結果を標準出力に出力する
+  - 実行例: `python -m pyopenjtalk "あらゆる現実を、すべて自分の方へねじ曲げたのだ。"`
 - **OpenJTalk 向けシステム辞書を、pyopenjtalk では初回実行時に自動ダウンロードされる [open_jtalk_dic_utf_8-1.11.tar.gz](https://github.com/r9y9/open_jtalk/releases/download/v1.11.1/open_jtalk_dic_utf_8-1.11.tar.gz) から、[独自にカスタマイズした pyopenjtalk-plus 向け辞書](pyopenjtalk/dictionary/) (wheel に同梱) に変更**
   - この辞書は [n5-suzuki/pyopenjtalk](https://github.com/n5-suzuki/pyopenjtalk/tree/develop) に含まれていた [bnken_jdic](https://github.com/n5-suzuki/pyopenjtalk/tree/develop/pyopenjtalk/bnken_jdic) という謎の名前のカスタム辞書をベースに、さらに [jpreprocess/naist-jdic](https://github.com/jpreprocess/naist-jdic) での改良点を取り込んだもの
   - この bnken_jdic は、恐らくは OpenJTalk 標準システム辞書の [mecab-naist-jdic](https://github.com/r9y9/open_jtalk/tree/1.11/src/mecab-naist-jdic) に対し、アクセント・読みの推定精度向上のために大幅にカスタマイズを加えた辞書データと推察される
@@ -39,7 +47,7 @@ pyopenjtalk-plus は、各フォークでの改善を一つのコードベース
       - 実際、「デフォルトの学習済みモデルは JSUT コーパスのみから学習されており、論文に記載されている性能とは異なる」(≒ marine 開発元の LINE 社内では独自の音声コーパスを用いてより高性能な学習済みモデルを作成・運用している) 旨が marine の README に記載されている
     - [n5-suzuki/pyopenjtalk](https://github.com/n5-suzuki/pyopenjtalk/tree/develop) では marine がデフォルトの依存関係に追加されており、専ら marine による AI アクセント推定を併用していることが伺える
     - pyopenjtalk-plus では PyTorch への依存が発生することからデフォルトの依存関係には含めていないが、別途 marine / marine-plus をインストールすれば利用可能
-  - **⚠️ marine 本家は Windows・Python 3.12 に非対応な上、非推奨警告が多数出力される問題があるため、これらの問題に対処した [marine-plus](https://github.com/tsukumijima/marine-plus) の利用を強く推奨します**
+  - **⚠️ marine 本家は Windows や Python 3.12 以降に非対応な上、非推奨警告が多数出力される問題があるため、これらの問題に対処した [marine-plus](https://github.com/tsukumijima/marine-plus) の利用を強く推奨します**
     - marine-plus での変更点は https://github.com/tsukumijima/marine-plus/commits/main/ を参照のこと
     - `pip install marine-plus` で marine 本家の代わりに marine-plus をインストールできる
 - **[litagin02/pyopenjtalk](https://github.com/litagin02/pyopenjtalk) での変更を取り込み、`pyopenjtalk.unset_user_dict()` 関数を追加**
@@ -56,7 +64,6 @@ pyopenjtalk-plus は、各フォークでの改善を一つのコードベース
     - ARM 版 Windows でビルド可能にする
     - Windows で辞書の保存先パスに日本語を含むマルチバイト文字が含まれるとエラーが発生する問題を修正
     - 各環境でのビルドに関連する諸問題を修正
-    - ビルド時の Cython バージョンを 3.0 系未満 (0.x 系) に制限
     - (OpenJTalk 側のみ) OpenJTalk 本体だけでユーザー辞書を読み込める `Mecab_load_with_userdic()` 関数を追加
     - (OpenJTalk 側のみ) 辞書のコンパイルに利用される `mecab-dict-index` モジュールにログ出力を抑制する `--quiet` オプションを追加
     - (OpenJTalk 側のみ) `mecab-dict-index` モジュールの `main()` 関数 (元は CLI コマンド用) をコメントアウト
@@ -68,16 +75,24 @@ pyopenjtalk-plus は、各フォークでの改善を一つのコードベース
   - 特に複数の読み方をする漢字の読みに対し [sudachipy](https://github.com/WorksApplications/SudachiPy) で形態素解析を行い、得られた結果を使い OpenJTalk から返された `list[NJDFeature]` 内の値を補正している点がユニーク
   - 他にも日本語アクセント・読みの推定精度向上のための涙ぐましい努力の結晶が多く反映されており、有用性を鑑みほぼそのままマージした
     - n5-suzuki 氏、a-ejiri 氏に深く感謝いたします🙏
-  - **このほか「何」を「なん」と読むか「なに」と読むかを判定するための [scikit-learn で実装された機械学習モデルによるロジック](pyopenjtalk/yomi_model/nani_predict.py) も含まれていたため、学習済みモデルを ONNX に変換して scikit-learn 0.24.2 への依存なしに動かせるよう改良した (v0.3.4-post5 以降)**
-    - 当該モデルは scikit-learn 0.24.2 でしか動作しないが、3年以上前にリリースされた極めて古いバージョンにつき Python 3.11・3.12 では動作せず、依存関係の問題もありインストール自体が困難になってきている
+  - **このほか「何」を「なん」と読むか「なに」と読むかを判定するための [scikit-learn で実装された機械学習モデルによるロジック](pyopenjtalk/yomi_model/nani_predict.py) も含まれていたため、学習済みモデルを ONNX に変換して scikit-learn 0.24.2 への依存なしに動かせるよう改良した**
+    - 当該モデルは scikit-learn 0.24.2 でしか動作しないが、3年以上前にリリースされた極めて古いバージョンにつき Python 3.11 以降では動作せず、依存関係の問題もありインストール自体が困難になってきている
     - 学習用コードは含まれていなかったため推測するしかないが、モデルのバイナリに含まれる文字列から、RandomForestClassifier を用いた比較的単純な機械学習モデルだと推測される
     - [ONNX 変換ツール](pyopenjtalk/yomi_model/convert_onnx.py) を自作した上で ONNX に変換し、[推論コード](pyopenjtalk/yomi_model/nani_predict.py) も ONNXRuntime を用いて推論するよう変更した
       - この変更により依存関係に ONNXRuntime が追加されるが、すでに機械学習関連の他ライブラリの依存関係に含まれていることも多く、実用上問題ないと判断した
+- **[korguchi/pyopenjtalk](https://github.com/korguchi/pyopenjtalk) での変更を取り込み、日本語の読み推定精度を改善**
+  - このフォークで利用されている [korguchi/open_jtalk](https://github.com/korguchi/open_jtalk) では、「クァ」や「クヮ」などの比較的珍しい音素のサポートが追加されている
+  - ほかにも「！」（感嘆符）を「記号/一般」として正しく推定するための改良など、概ね副作用なしに精度向上が見込めることから、有用性を鑑みほぼそのままマージした
+- **[sabonerune/pyopenjtalk](https://github.com/sabonerune/pyopenjtalk) での変更を取り込み、スレッドセーフ化と一部 Cython コードの nogil 化を達成**
+  - スレッドセーフ化により、複数スレッドから安全に pyopenjtalk を呼び出せるようになった
+  - 一部 Cython コードの nogil 化により、若干のパフォーマンス向上も見込める
+  - https://github.com/r9y9/pyopenjtalk/pull/87 と https://github.com/r9y9/pyopenjtalk/pull/88 の内容を一部改変の上で取り込んだ
 - **submodule の OpenJTalk を [tsukumijima/open_jtalk](https://github.com/tsukumijima/open_jtalk) に変更**
   - このフォークでは、pyopenjtalk-plus 向けに下記のフォーク版 OpenJTalk での改善内容を取り込んでいる
     - [VOICEVOX/open_jtalk](https://github.com/VOICEVOX/open_jtalk)
     - [a-ejiri/open_jtalk](https://github.com/a-ejiri/open_jtalk)
     - [sophiefy/open_jtalk](https://github.com/sophiefy/open_jtalk)
+    - [korguchi/open_jtalk](https://github.com/korguchi/open_jtalk)
 - **submodule の hts_engine_API を [syoyo/hts_engine_API](https://github.com/syoyo/hts_engine_API) に変更**
   - このフォークでは、https://github.com/r9y9/hts_engine_API/issues/9 に挙げられている問題が修正されている
 - **ライブラリの開発環境構築・ビルド・コード整形・テストを `taskipy` によるタスクランナーでの管理に変更**

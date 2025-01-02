@@ -14,7 +14,7 @@ from setuptools import Extension, find_packages, setup
 
 platform_is_windows = sys.platform == "win32"
 
-version = "0.3.4-post5"
+version = "0.3.4-post7"
 
 msvc_extra_compile_args_config = [
     "/source-charset:utf-8",
@@ -224,9 +224,10 @@ setup(
     cmdclass={"build_ext": custom_build_ext, "build_py": build_py, "develop": develop},
     install_requires=[
         "importlib_resources; python_version<'3.9'",
-        "numpy>=1.24.0, <2.0",
+        "numpy>=1.24.0",
         "onnxruntime",
-        "sudachipy",
+        "sudachipy; python_version>='3.9'",
+        "sudachipy<=0.6.8; python_version<'3.9'",
         "sudachidict_core",
     ],
     tests_require=["nose", "coverage"],
@@ -240,7 +241,7 @@ setup(
             "jupyter",
         ],
         "dev": [
-            "cython>=0.28.0, <3.0",
+            "cython>=3.0",
             "pysen",
             "taskipy",
             "types-setuptools",
@@ -269,6 +270,7 @@ setup(
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
         "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development",
