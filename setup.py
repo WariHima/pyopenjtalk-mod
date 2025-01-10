@@ -213,7 +213,8 @@ def install_dictionary(dictionary_path):
     """Install the dictionary files to the specified path."""
     file1 = Path(dictionary_path) / "model.bin1"
     file2 = Path(dictionary_path) / "model.bin2"
-    dict_file = Path(dictionary_path) / "sys.dic.bz2"
+    dict_file = Path(dictionary_path) / "fugashi_sys.dic.bz2"
+    vibrato_dict_file = Path(dictionary_path) / "vibrato_sys.dic.bz2"
 
     file2.read_bytes
     model_path = Path(dictionary_path) / "model.bin"
@@ -222,7 +223,11 @@ def install_dictionary(dictionary_path):
 
     with bz2.open(dict_file, 'rb') as f:
         dict_content = f.read()
-        Path(dictionary_path + "/sys.dic").write_bytes(dict_content)
+        Path(dictionary_path + "/fugashi_sys.dic").write_bytes(dict_content)
+
+    with bz2.open(vibrato_dict_file, 'rb') as f:
+        dict_content = f.read()
+        Path(dictionary_path + "/vibrato_sys.dic").write_bytes(dict_content)
 
 
 install_dictionary(dictionary_path="./pyopenjtalk/suwad_dictionary")
@@ -274,6 +279,7 @@ setup(
         "sudachipy<=0.6.8; python_version<'3.9'",
         "sudachidict_core",
         "fugashi-plus",
+        "vibrato",
     ],
     tests_require=["nose", "coverage"],
     extras_require={

@@ -11,6 +11,8 @@ sample.*
 pyopenjtalk/suwad_dictionary/lex.csv
 pyopenjtalk/suwad_dictionary/model.bin
 pyopenjtalk/suwad_dictionary/model.def
+pyopenjtalk/suwad_dictionary/fugashi_sys.dic
+pyopenjtalk/suwad_dictionary/vibrato_sys.dic
 pyopenjtalk/suwad_dictionary/sys.dic
 pyopenjtalk/suwad_dictionary/model.bin.bak
 
