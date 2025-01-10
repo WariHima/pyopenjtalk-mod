@@ -8,6 +8,11 @@ import numpy as np
 from contextlib import contextmanager
 from threading import Lock
 
+from fugashi import GenericTagger, try_import_unidic
+import re 
+from pathlib import Path
+import os
+
 cimport numpy as np
 np.import_array()
 
@@ -98,7 +103,263 @@ cdef njd2feature(_njd.NJD* njd):
         node = node.next
     return features
 
+def  fugashi2feature(text, user_dict_dir_path = None):
 
+    text = text.decode("utf-8")
+    __FEATURE_PATTERN = re.compile(r"\".*,.*\"")
+    """
+    fugashi (fugashi-plus) でテキストを解析し、語句ごとの単語、カタカナ読み、アクセント、品詞を取得する。
+    fugashi-plus でないと Windows 環境で辞書へのパスを正しく指定できない。
+
+    Args:
+        text (str): テキスト
+        dict_path (Path | None, optional): fugashi のシステム辞書のパス。
+            未指定時は unidic / unidic-lite パッケージから取得する。Defaults to None.
+        user_dict_path (Path | None, optional): fugashi のユーザー辞書のパス。
+            Defaults to None.
+
+    Returns:
+        tuple[list[str], list[str], list[str | list[str]], list[str]]:
+        語句ごとの単語のリスト、カタカナ読みのリスト、アクセントのリスト、品詞のリスト
+    """
+
+    _curdir = os.path.dirname(__file__)
+    dict_dir_path = Path(_curdir) /"suwad_dictionary"
+
+    # システム辞書ディレクトリのパス・システム辞書の mecabrc ファイルのパスを取得
+    # 念のため、パス区切り文字は OS に関わらず通常のスラッシュとしている
+    dict_dir_path_str = dict_dir_path.as_posix()
+    dicrc_path_str = (dict_dir_path / "dicrc").as_posix()
+
+    # ユーザー辞書が指定されている場合
+    if user_dict_dir_path is not None:
+        user_dict_dir_path_str = user_dict_dir_path.as_posix()
+        # パスをダブルクオートで囲わないと、空白の入ったパスでエラーになる
+        tagger = GenericTagger(f'-Owakati -r "{dicrc_path_str}" -d "{dict_dir_path_str}" -u "{user_dict_dir_path_str}"')  #type: ignore
+
+    # ユーザー辞書が指定されていない場合
+    else:
+        # パスをダブルクオートで囲わないと、空白の入ったパスでエラーになる
+        tagger = GenericTagger(f'-Owakati -r "{dicrc_path_str}" -d "{dict_dir_path_str}"') #type: ignore
+
+    #事前にここでカタカナのアクセント推定をする
+    _KATAKANA_PATTERN = re.compile(r"[ァ-ワヲンヴー]+")
+    _YOUNON_LIST = ["ァ", "ィ", "ゥ", "ェ" ,"ォ","ャ","ュ","ョ", "ッ"]
+    
+    if r"　" in text:
+        text_list = text.split(r"　")
+    elif r" " in text:
+        text_list = text.split(r" ")
+
+    feature_list = []
+
+    for i , word in enumerate(text_list):
+
+        if _KATAKANA_PATTERN.fullmatch(word):
+
+            
+            parsed_word = tagger.parse(word)
+
+            #モーラ数を計算
+            mora = word 
+
+            for youon in  _YOUNON_LIST:
+                mora = mora.replace(youon, "")
+
+            mora = len(mora)
+
+            if not r" " in parsed_word:
+                
+                feature = tagger(word)[0].feature_raw
+
+                # アクセント核が二つある場合「"*,*"」という風に記述されているので、「,」を「|」に変更し「"」を消す
+                if __FEATURE_PATTERN.search(feature):
+                    accent_start = __FEATURE_PATTERN.search(feature).start()  # type: ignore
+                    accent_end = __FEATURE_PATTERN.search(feature).end()  # type: ignore
+
+                    accent = feature[accent_start:accent_end].replace(",", "|")
+
+                    feature = (
+                        feature[:accent_start] + accent.replace('"', "") + feature[accent_end:]
+                    )
+
+                feature = feature.split(",")
+
+                """
+                "feature" は Unidic の特徴データを named tuple として表現したもの。
+                "feature_raw" はその語句の生の特徴情報。
+
+                UniDic から得られる分類情報についてのメモ
+                - 0 から数えて 0 番目 (CSV 形式: 0 から数えて 4 番目) => 品詞分類1
+                - 0 から数えて 9 番目 (CSV 形式: 0 から数えて 13 番目) => 発音系
+                - 0 から数えて 24 番目 (CSV 形式: 0 から数えて 28 番目) => アクセントタイプ
+                - 0 から数えて 25 番目 (CSV 形式: 0 から数えて 29 番目) => アクセント結合型
+                """
+
+                # 辞書にある場合
+                if len(feature) == 29:
+                    new_feature ={
+                    "string": word,
+                    "pos": feature[0],
+                    "pos_group1": feature[1],
+                    "pos_group2": feature[2],
+                    "pos_group3": feature[3],
+                    "ctype": feature[25],
+                    "cform": "*",
+                    "orig": feature[8],
+                    "read": feature[9],
+                    "pron": feature[9],
+                    "acc": feature[24],
+                    "mora_size": mora,
+                    "chain_rule": "0",
+                    "chain_flag": 0,
+                    }
+                    feature_list.append(new_feature)
+                    
+                    text = text.replace(word, "")
+
+
+                elif len(feature) == 29 and len(feature[24]) >= 3:
+                    new_feature ={
+                    "string": word,
+                    "pos": feature[0],
+                    "pos_group1": feature[1],
+                    "pos_group2": feature[2],
+                    "pos_group3": feature[3],
+                    "ctype": feature[25],
+                    "cform": "*",
+                    "orig": feature[8],
+                    "read": feature[9],
+                    "pron": feature[9],
+                    "acc": feature[24].split("|")[0],
+                    "mora_size": mora,
+                    "chain_rule": "0",
+                    "chain_flag": 0,
+                    }
+                    feature_list.append(new_feature)
+
+                    text = text.replace(word, "")
+            else:
+
+                #4モーラ以上の時後ろから数えて三番目までを高くする
+                if mora >= 4:
+                    acc = mora - 2
+
+                else:
+                    acc = 1
+
+                
+                new_feature ={
+                "string": word,
+                "pos": "フィラー",
+                "pos_group1": "*",
+                "pos_group2": "*",
+                "pos_group3": "*",
+                "ctype": "*",
+                "cform": "*",
+                "orig": word,
+                "read": word,
+                "pron": word,
+                "acc": acc,
+                "mora_size": mora,
+                "chain_rule": "0",
+                "chain_flag": 0,
+                }
+                feature_list.append(new_feature)
+                text = text.replace(word, "")
+        else:
+            break
+    
+    # 解析
+
+    for word in tagger(text):
+        feature = word.feature_raw
+
+        # アクセント核が二つある場合「"*,*"」という風に記述されているので、「,」を「|」に変更し「"」を消す
+        if __FEATURE_PATTERN.search(feature):
+            accent_start = __FEATURE_PATTERN.search(feature).start()  # type: ignore
+            accent_end = __FEATURE_PATTERN.search(feature).end()  # type: ignore
+
+            accent = feature[accent_start:accent_end].replace(",", "|")
+
+            feature = (
+                feature[:accent_start] + accent.replace('"', "") + feature[accent_end:]
+            )
+
+        feature = feature.split(",")
+
+        """
+        "feature" は Unidic の特徴データを named tuple として表現したもの。
+        "feature_raw" はその語句の生の特徴情報。
+
+        UniDic から得られる分類情報についてのメモ
+        - 0 から数えて 0 番目 (CSV 形式: 0 から数えて 4 番目) => 品詞分類1
+        - 0 から数えて 9 番目 (CSV 形式: 0 から数えて 13 番目) => 発音系
+        - 0 から数えて 24 番目 (CSV 形式: 0 から数えて 28 番目) => アクセントタイプ
+        - 0 から数えて 25 番目 (CSV 形式: 0 から数えて 29 番目) => アクセント結合型
+        """
+
+        # 辞書にある場合
+        if len(feature) == 29:
+            #モーラ数を計算
+            mora = feature[9] 
+
+            for youon in  _YOUNON_LIST:
+                mora = mora.replace(youon, "")
+
+            mora = len(mora)
+
+        
+            new_feature ={
+            "string": str(word),
+            "pos": feature[0],
+            "pos_group1": feature[1],
+            "pos_group2": feature[2],
+            "pos_group3": feature[3],
+            "ctype": feature[4],
+            "cform": feature[5],
+            "orig": feature[8],
+            "read": feature[9],
+            "pron": feature[9],
+            "acc": feature[24],
+            "mora_size": mora,
+            "chain_rule": "0",
+            "chain_flag": 0,
+            }
+
+        elif len(feature) == 29 and len(feature[24]) >= 3:
+            new_feature ={
+            "string": str(word),
+            "pos": feature[0],
+            "pos_group1": feature[1],
+            "pos_group2": feature[2],
+            "pos_group3": feature[3],
+            "ctype": feature[4],
+            "cform": feature[5],
+            "orig": feature[8],
+            "read": feature[9],
+            "pron": feature[9],
+            "acc": feature[24].split("|")[0],
+            "mora_size": mora,
+            "chain_rule": "0",
+            "chain_flag": 0,
+            }
+
+        
+
+        feature_list.append(new_feature)
+
+    for i in range(len(feature_list)):
+        feature = feature_list[i]
+
+        if feature["acc"] == "*":
+            feature["acc"] = 0
+        else:
+            feature["acc"] = int(feature["acc"])
+        feature_list[i] = feature
+
+    return feature_list
+    
 cdef void feature2njd(_njd.NJD* njd, features):
     cdef _njd.NJDNode* node
 
@@ -205,7 +466,7 @@ cdef class OpenJTalk:
         return Mecab_load_with_userdic(self.mecab, dn_mecab, userdic)
 
     @_lock_manager()
-    def run_frontend(self, text):
+    def run_frontend(self, text, use_suwad_dict: bool = False):
         """Run OpenJTalk's text processing frontend
         """
         cdef char buff[8192]
@@ -251,10 +512,19 @@ cdef class OpenJTalk:
 
         cdef uint64_t[:] cint_morphs = int_morphs
         cdef char** new_mecab_morphs = <char**>&cint_morphs[0]
-        with nogil:
-            mecab2njd(self.njd, new_mecab_morphs, new_size)
 
-            _njd.njd_set_pronunciation(self.njd)
+        if use_suwad_dict == True:
+            feature = fugashi2feature(text)
+            NJD_refresh(self.njd)
+            feature2njd(self.njd, feature)
+            with nogil:
+                _njd.njd_set_pronunciation(self.njd)
+
+        else:
+            with nogil:
+                mecab2njd(self.njd, new_mecab_morphs, new_size)
+
+                _njd.njd_set_pronunciation(self.njd)
 
         feature = njd2feature(self.njd)
         feature = apply_original_rule_before_chaining(feature)

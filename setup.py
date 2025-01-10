@@ -5,6 +5,9 @@ from glob import glob
 from itertools import chain
 from os.path import exists, join
 
+from pathlib import Path
+import bz2
+
 import numpy as np
 import setuptools.command.build_ext
 import setuptools.command.build_py
@@ -206,6 +209,24 @@ class develop(setuptools.command.develop.develop):
 with open("README.md", "r", encoding="utf8") as fd:
     long_description = fd.read()
 
+def install_dictionary(dictionary_path):
+    """Install the dictionary files to the specified path."""
+    file1 = Path(dictionary_path) / "model.bin1"
+    file2 = Path(dictionary_path) / "model.bin2"
+    dict_file = Path(dictionary_path) / "sys.dic.bz2"
+
+    file2.read_bytes
+    model_path = Path(dictionary_path) / "model.bin"
+    data = file1.read_bytes() + file2.read_bytes()
+    model_path.write_bytes(data)
+
+    with bz2.open(dict_file, 'rb') as f:
+        dict_content = f.read()
+        Path(dictionary_path + "/sys.dic").write_bytes(dict_content)
+
+
+install_dictionary(dictionary_path="./pyopenjtalk/suwad_dictionary")
+
 setup(
     name="pyopenjtalk-plus",
     version=version,
@@ -219,6 +240,14 @@ setup(
     packages=find_packages(),
     package_data={
         "": [
+            "suwad_dictionary/dicrc",
+            "suwad_dictionary/*.bin",
+            "suwad_dictionary/*.dic",
+            "suwad_dictionary/left-id.def",
+            "suwad_dictionary/pos-id.def",
+            "suwad_dictionary/rewrite-id.def",
+            "suwad_dictionary/right-id.def",    
+
             "dictionary/COPYING",
             "dictionary/*.bin",
             "dictionary/*.dic",
@@ -243,6 +272,7 @@ setup(
         "sudachipy; python_version>='3.9'",
         "sudachipy<=0.6.8; python_version<'3.9'",
         "sudachidict_core",
+        "fugashi-plus",
     ],
     tests_require=["nose", "coverage"],
     extras_require={

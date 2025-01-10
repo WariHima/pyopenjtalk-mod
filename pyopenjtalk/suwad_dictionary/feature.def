@@ -1,0 +1,306 @@
+# F[0]: pos1
+# F[1]: pos2
+# F[2]: pos3
+# F[3]: pos4
+# F[4]: cType
+# F[5]: cForm
+# F[6]: lForm
+# F[7]: lemma
+# F[8]: orth
+# F[9]: orthBase
+# F[10]: pron
+# F[11]: pronBase
+# F[12]: goshu
+# F[13]: aType
+# F[14]: aConType
+# F[15]: aModType
+#
+# L[0]: pos1
+# L[1]: pos2
+# L[2]: pos3
+# L[3]: pos4
+# L[4]: cType
+# L[5]: cForm
+# L[6]: orth
+# L[7]: orthBase
+# L[8]: goshu
+# L[9]: fType
+# L[10]: fForm
+# L[11]: iConType
+# L[12]: aType
+# L[13]: aConType
+# L[14]: aModType
+#
+# R[0]: pos1
+# R[1]: pos2
+# R[2]: pos3
+# R[3]: pos4
+# R[4]: cType
+# R[5]: cForm
+# R[6]: orth
+# R[7]: orthBase
+# R[8]: goshu
+# R[9]: iType
+# R[10]: iForm
+# R[11]: fConType
+# R[12]: aType
+# R[13]: aConType
+# R[14]: aModType
+
+UNIGRAM LGOP01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3],%F?[8],%F?[10]
+UNIGRAM LGOP02:%F[6],%F[7],%F[0],%F[1],%F?[2],%F?[8],%F?[10]
+UNIGRAM LGOP03:%F[6],%F[7],%F[0],%F?[1],%F?[8],%F?[10]
+UNIGRAM LGOP03:%F[6],%F[7],%F[0],%F?[8],%F?[10]
+
+UNIGRAM LGCOP01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[5],%F?[8],%F?[10]
+UNIGRAM LGCOP02:%F[6],%F[7],%F[0],%F?[4],%F?[5],%F?[8],%F?[10]
+
+UNIGRAM LGO01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3],%F?[8]
+UNIGRAM LGO02:%F[6],%F[7],%F[0],%F[1],%F?[2],%F?[8]
+UNIGRAM LGO03:%F[6],%F[7],%F[0],%F?[1],%F?[8]
+UNIGRAM LGO03:%F[6],%F[7],%F[0],%F?[8]
+
+UNIGRAM LGCO01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[5],%F?[8]
+UNIGRAM LGCO02:%F[6],%F[7],%F[0],%F?[4],%F?[5],%F?[8]
+
+UNIGRAM LG01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3]
+UNIGRAM LG02:%F[6],%F[7],%F[0],%F[1],%F?[2]
+UNIGRAM LG03:%F[6],%F[7],%F[0],%F?[1]
+UNIGRAM LG03:%F[6],%F[7],%F[0]
+
+UNIGRAM LGC01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[5]
+UNIGRAM LGC02:%F[6],%F[7],%F[0],%F?[4],%F?[5]
+
+UNIGRAM LGCt01:%F[6],%F[7],%F[0],%F?[1],%F?[4]
+UNIGRAM LGCt02:%F[6],%F[7],%F[0],%F?[4]
+
+UNIGRAM L01:%F[6],%F[7]
+
+UNIGRAM LGP01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3],%F?[10]
+UNIGRAM LGP02:%F[6],%F[7],%F[0],%F[1],%F?[2],%F?[10]
+UNIGRAM LGP03:%F[6],%F[7],%F[0],%F?[1],%F?[10]
+UNIGRAM LGP03:%F[6],%F[7],%F[0],%F?[10]
+
+UNIGRAM LGCP01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[5],%F?[10]
+UNIGRAM LGCP02:%F[6],%F[7],%F[0],%F?[4],%F?[5],%F?[10]
+
+UNIGRAM GC01:%F[0],%F?[4]
+UNIGRAM GC02:%F[0],%F?[1],%F?[4]
+UNIGRAM GC03:%F[0],%F?[4],%F?[5]
+UNIGRAM GC04:%F[0],%F?[1],%F?[4],%F?[5]
+
+UNIGRAM G01:%F[0]
+UNIGRAM G02:%F[0],%F?[1]
+UNIGRAM G03:%F[0],%F[1],%F?[2]
+UNIGRAM G04:%F[0],%F[1],%F[2],%F?[3]
+
+UNIGRAM C01:%F?[4]
+UNIGRAM C03:%F?[4],%F?[5]
+
+UNIGRAM O01:%F?[8]
+UNIGRAM O02:%F?[9]
+
+UNIGRAM P01:%F?[10]
+UNIGRAM P02:%F?[11]
+
+UNIGRAM W01:%F?[12]
+
+UNIGRAM WG01:%F?[12],%F[0]
+
+UNIGRAM T01:%t
+
+UNIGRAM TG01:%t,%F[0]
+
+UNIGRAM GOP01:%F[0],%F[1],%F[2],%F?[3],%F?[8],%F?[10]
+UNIGRAM GOP02:%F[0],%F[1],%F?[2],%F?[8],%F?[10]
+UNIGRAM GOP03:%F[0],%F?[1],%F?[8],%F?[10]
+UNIGRAM GOP03:%F[0],%F?[8],%F?[10]
+
+UNIGRAM GCOP01:%F[0],%F?[1],%F?[4],%F?[5],%F?[8],%F?[10]
+UNIGRAM GCOP02:%F[0],%F?[4],%F?[5],%F?[8],%F?[10]
+
+UNIGRAM GO01:%F[0],%F[1],%F[2],%F?[3],%F?[8]
+UNIGRAM GO02:%F[0],%F[1],%F?[2],%F?[8]
+UNIGRAM GO03:%F[0],%F?[1],%F?[8]
+UNIGRAM GO03:%F[0],%F?[8]
+
+UNIGRAM GCO01:%F[0],%F?[1],%F?[4],%F?[5],%F?[8]
+UNIGRAM GCO02:%F[0],%F?[4],%F?[5],%F?[8]
+
+UNIGRAM GP01:%F[0],%F[1],%F[2],%F?[3],%F?[10]
+UNIGRAM GP02:%F[0],%F[1],%F?[2],%F?[10]
+UNIGRAM GP03:%F[0],%F?[1],%F?[10]
+UNIGRAM GP03:%F[0],%F?[10]
+
+UNIGRAM GCP01:%F[0],%F?[1],%F?[4],%F?[5],%F?[10]
+UNIGRAM GCP02:%F[0],%F?[4],%F?[5],%F?[10]
+
+UNIGRAM LGObPb01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3],%F?[9],%F?[11]
+UNIGRAM LGObPb02:%F[6],%F[7],%F[0],%F[1],%F?[2],%F?[9],%F?[11]
+UNIGRAM LGObPb03:%F[6],%F[7],%F[0],%F?[1],%F?[9],%F?[11]
+UNIGRAM LGObPb03:%F[6],%F[7],%F[0],%F?[9],%F?[11]
+
+UNIGRAM LGCObPb01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[9],%F?[11]
+UNIGRAM LGCObPb02:%F[6],%F[7],%F[0],%F?[4],%F?[9],%F?[11]
+
+UNIGRAM LGOb01:%F[6],%F[7],%F[0],%F[1],%F[2],%F?[3],%F?[9]
+UNIGRAM LGOb02:%F[6],%F[7],%F[0],%F[1],%F?[2],%F?[9]
+UNIGRAM LGOb03:%F[6],%F[7],%F[0],%F?[1],%F?[9]
+UNIGRAM LGOb03:%F[6],%F[7],%F[0],%F?[9]
+
+UNIGRAM LGCOb01:%F[6],%F[7],%F[0],%F?[1],%F?[4],%F?[9]
+UNIGRAM LGCOb02:%F[6],%F[7],%F[0],%F?[4],%F?[9]
+
+UNIGRAM GObPb01:%F[0],%F[1],%F[2],%F?[3],%F?[9],%F?[11]
+UNIGRAM GObPb02:%F[0],%F[1],%F?[2],%F?[9],%F?[11]
+UNIGRAM GObPb03:%F[0],%F?[1],%F?[9],%F?[11]
+UNIGRAM GObPb03:%F[0],%F?[9],%F?[11]
+
+UNIGRAM GCObPb01:%F[0],%F?[1],%F?[4],%F?[9],%F?[11]
+UNIGRAM GCObPb02:%F[0],%F?[4],%F?[9],%F?[11]
+
+UNIGRAM GOb01:%F[0],%F[1],%F[2],%F?[3],%F?[9]
+UNIGRAM GOb02:%F[0],%F[1],%F?[2],%F?[9]
+UNIGRAM GOb03:%F[0],%F?[1],%F?[9]
+UNIGRAM GOb03:%F[0],%F?[9]
+
+UNIGRAM GCOb01:%F[0],%F?[1],%F?[4],%F?[9]
+UNIGRAM GCOb02:%F[0],%F?[4],%F?[9]
+
+UNIGRAM GPb01:%F[0],%F[1],%F[2],%F?[3],%F?[11]
+UNIGRAM GPb02:%F[0],%F[1],%F?[2],%F?[11]
+UNIGRAM GPb03:%F[0],%F?[1],%F?[11]
+UNIGRAM GPb03:%F[0],%F?[11]
+
+UNIGRAM GCPb01:%F[0],%F?[1],%F?[4],%F?[11]
+UNIGRAM GCPb02:%F[0],%F?[4],%F?[11]
+
+UNIGRAM CA01:%F?[5],%F?[15]
+
+
+############## 統語的連接素性 #################
+
+BIGRAM G_G01:%L[0]/%R[0]
+BIGRAM G_G02:%L[0]/%R[0],%R?[1]
+BIGRAM G_G03:%L[0]/%R[0],%R[1],%R?[2]
+BIGRAM G_G04:%L[0]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM G_G05:%L[0],%L?[1]/%R[0]
+BIGRAM G_G06:%L[0],%L?[1]/%R[0],%R?[1]
+BIGRAM G_G07:%L[0],%L?[1]/%R[0],%R[1],%R?[2]
+BIGRAM G_G08:%L[0],%L?[1]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM G_G09:%L[0],%L[1],%L?[2]/%R[0]
+BIGRAM G_G10:%L[0],%L[1],%L?[2]/%R[0],%R?[1]
+BIGRAM G_G11:%L[0],%L[1],%L?[2]/%R[0],%R[1],%R?[2]
+BIGRAM G_G12:%L[0],%L[1],%L?[2]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM G_G13:%L[0],%L[1],%L[2],%L?[3]/%R[0]
+BIGRAM G_G14:%L[0],%L[1],%L[2],%L?[3]/%R[0],%R?[1]
+BIGRAM G_G15:%L[0],%L[1],%L[2],%L?[3]/%R[0],%R[1],%R?[2]
+BIGRAM G_G16:%L[0],%L[1],%L[2],%L?[3]/%R[0],%R[1],%R[2],%R?[3]
+
+BIGRAM G_O01:%L[0]/%R?[7]
+BIGRAM G_O02:%L[0],%L?[1]/%R?[7]
+BIGRAM G_O03:%L[0],%L[1],%L?[2]/%R?[7]
+BIGRAM G_O04:%L[0],%L[1],%L[2],%L?[3]/%R?[7]
+BIGRAM G_O05:%L[0]/%R?[6]
+BIGRAM G_O06:%L[0],%L?[1]/%R?[6]
+BIGRAM G_O07:%L[0],%L[1],%L?[2]/%R?[6]
+BIGRAM G_O08:%L[0],%L[1],%L[2],%L?[3]/%R?[6]
+
+#右のGはいらない汎化を防ぐため
+BIGRAM G_C01:%L[0]/%R[0],%R?[4]
+BIGRAM G_C02:%L[0],%L?[1]/%R[0],%R?[4]
+BIGRAM G_C03:%L[0]/%R[0],%R?[4],%R[5]
+BIGRAM G_C04:%L[0],%L?[1]/%R[0],%R?[4],%R[5]
+
+BIGRAM O_G01:%L?[7]/%R[0]
+BIGRAM O_G02:%L?[7]/%R[0],%R?[1]
+BIGRAM O_G03:%L?[7]/%R[0],%R[1],%R?[2]
+BIGRAM O_G04:%L?[7]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM O_G05:%L?[6]/%R[0]
+BIGRAM O_G06:%L?[6]/%R[0],%R?[1]
+BIGRAM O_G07:%L?[6]/%R[0],%R[1],%R?[2]
+BIGRAM O_G08:%L?[6]/%R[0],%R[1],%R[2],%R?[3]
+
+BIGRAM O_O01:%L?[6]/%R?[6]
+BIGRAM O_O02:%L?[6]/%R?[7]
+BIGRAM O_O03:%L?[7]/%R?[7]
+
+#右のGはいらない汎化を防ぐため
+BIGRAM O_C01:%L?[6]/%R[0],%R?[4]
+BIGRAM O_C02:%L?[6]/%R[0],%R?[4],%R?[5]
+BIGRAM O_C03:%L?[7]/%R[0],%R?[4]
+BIGRAM O_C04:%L?[7]/%R[0],%R?[4],%R?[5]
+
+#左のGはいらない汎化を防ぐため
+BIGRAM C_G01:%L[0],%L?[4]/%R[0]
+BIGRAM C_G02:%L[0],%L?[4]/%R[0],%R?[1]
+BIGRAM C_G03:%L[0],%L?[4]/%R[0],%R[1],%R?[2]
+BIGRAM C_G04:%L[0],%L?[4]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM C_G05:%L[0],%L?[4],%L?[5]/%R[0]
+BIGRAM C_G06:%L[0],%L?[4],%L?[5]/%R[0],%R?[1]
+BIGRAM C_G07:%L[0],%L?[4],%L?[5]/%R[0],%R[1],%R?[2]
+BIGRAM C_G08:%L[0],%L?[4],%L?[5]/%R[0],%R[1],%R[2],%R?[3]
+
+#左のGはいらない汎化を防ぐため
+BIGRAM C_O01:%L[0],%L?[4]/%R?[6]
+BIGRAM C_O02:%L[0],%L?[4]/%R?[7]
+BIGRAM C_O03:%L[0],%L?[4],%L?[5]/%R?[6]
+BIGRAM C_O04:%L[0],%L?[4],%L?[5]/%R?[7]
+
+#Gはいらない汎化を防ぐため
+BIGRAM C_C01:%L[0],%L?[4]/%R[0],%R?[4]
+BIGRAM C_C02:%L[0],%L?[4],%L?[5]/%R[0],%R?[4]
+BIGRAM C_C03:%L[0],%L?[4]/%R[0],%R?[4]%R?[5]
+BIGRAM C_C04:%L[0],%L?[4],%L?[5]/%R[0],%R?[4]%R?[5]
+
+#L[0]は詳細化
+BIGRAM Cf_G01:%L?[5]/%R[0]
+BIGRAM Cf_G02:%L?[5]/%R[0],%R?[1]
+BIGRAM Cf_G03:%L?[5]/%R[0],%R[1],%R?[2]
+BIGRAM Cf_G04:%L?[5]/%R[0],%R[1],%R[2],%R?[3]
+BIGRAM Cf_G01:%L[0],%L?[5]/%R[0]
+BIGRAM Cf_G02:%L[0],%L?[5]/%R[0],%R?[1]
+BIGRAM Cf_G03:%L[0],%L?[5]/%R[0],%R[1],%R?[2]
+BIGRAM Cf_G04:%L[0],%L?[5]/%R[0],%R[1],%R[2],%R?[3]
+
+BIGRAM I_I:%L?[11]/%R?[9],%R?[10]
+BIGRAM F_F:%L?[9],%L?[10]/%R?[11]
+
+############## 語彙的連接素性 #################
+
+
+BIGRAM W_W01:%L?[8]/%R?[8]
+
+BIGRAM C_C01:%L?[4]/%R?[4]
+
+BIGRAM W_C01:%L?[8]/%R?[4]
+
+BIGRAM C_W01:%L?[4]/%R?[8]
+
+BIGRAM W_O01:%L?[8]/%R?[6]
+BIGRAM W_O02:%L?[8]/%R?[7]
+
+BIGRAM O_W01:%L?[6]/%R?[8]
+BIGRAM O_W02:%L?[7]/%R?[8]
+
+BIGRAM GC_GC01:%L[0],%L?[1],%L?[4],%L?[5]/%R[0],%R?[1],%R?[4],%R?[5]
+BIGRAM GC_GC02:%L[0],%L?[4],%L?[5]/%R[0],%R?[1],%R?[4],%R?[5]
+BIGRAM GC_GC03:%L[0],%L?[1],%L?[4],%L?[5]/%R[0],%R?[4],%R?[5]
+BIGRAM GC_GC04:%L[0],%L?[4],%L?[5]/%R[0],%R?[4],%R?[5]
+
+
+############### アクセント連接素性 #################
+
+BIGRAM A_A01:%L?[12]/%R?[12]
+BIGRAM A_A02:%L?[5],%L?[14]/%R?[12]
+BIGRAM A_A03:%L?[12]/%R?[5],%R?[14]
+BIGRAM A_A04:%L?[5],%L?[14]/%R?[5],%R?[14]
+
+BIGRAM G_Ac01:%L[0]/%R?[13]
+BIGRAM G_Ac02:%L[0],%L?[1]/%R?[13]
+BIGRAM G_Ac03:%L[0],%L?[1],%L?[2]/%R?[13]
+
+BIGRAM Ac_G01:%L?[13]/%R[0]
+BIGRAM Ac_G02:%L?[13]/%R[0],%R?[1]
+BIGRAM Ac_G03:%L?[13]/%R[0],%R?[1],%R?[2]
+

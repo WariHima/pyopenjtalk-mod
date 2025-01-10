@@ -315,6 +315,7 @@ def run_frontend(
     text: str,
     run_marine: bool = False,
     use_vanilla: bool = False,
+    use_suwad_dict: bool = False,
     jtalk: Union[OpenJTalk, None] = None,
 ) -> List[NJDFeature]:
     """Run OpenJTalk's text processing frontend
@@ -333,11 +334,11 @@ def run_frontend(
         List[NJDFeature]: features for NJDNode.
     """
     if jtalk is not None:
-        njd_features = jtalk.run_frontend(text)
+        njd_features = jtalk.run_frontend(text, use_suwad_dict)
     else:
         global _global_jtalk
         with _global_jtalk() as jtalk:
-            njd_features = jtalk.run_frontend(text)
+            njd_features = jtalk.run_frontend(text, use_suwad_dict)
     if run_marine:
         pred_njd_features = estimate_accent(njd_features)
         njd_features = preserve_noun_accent(njd_features, pred_njd_features)

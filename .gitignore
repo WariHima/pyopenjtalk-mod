@@ -7,6 +7,13 @@ docs/generated
 sample.*
 .venv/
 
+#suwad dict unused contents
+pyopenjtalk/suwad_dictionary/lex.csv
+pyopenjtalk/suwad_dictionary/model.bin
+pyopenjtalk/suwad_dictionary/model.def
+pyopenjtalk/suwad_dictionary/sys.dic
+pyopenjtalk/suwad_dictionary/model.bin.bak
+
 # Created by https://www.gitignore.io
 
 ### Python ###
