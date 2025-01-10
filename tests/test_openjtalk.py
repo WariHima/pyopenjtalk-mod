@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 import pyopenjtalk
+from pyopenjtalk.sbv2_hougen.hougen import SpeakingStyleRule
 import pytest
 
 
@@ -96,6 +97,17 @@ def test_fullcontext_marine():
     for a, b in zip(labels, labels2):
         assert a == b
 
+def test_njd_other_pron_mod():
+    njd_features = pyopenjtalk.run_frontend("東第二高　ドル高　ユーロ高")
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    
+    assert pron == "ヒガシダイニコードルダカユーロダカ"
+
+def test_speaking_tyle():
+    njd_features = pyopenjtalk.run_frontend("バーニング",speaking_style_rules = [SpeakingStyleRule.ConvertBToV])
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    
+    assert pron == "ヴァーニング"
 
 def test_jtalk():
     for text in [

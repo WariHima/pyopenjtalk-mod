@@ -3,7 +3,7 @@
 from typing import Iterable, List
 
 from .types import NJDFeature
-
+from .sbv2_hougen.hougen import DialectRule , SpeakingStyleRule
 class OpenJTalk:
     def __init__(self, dn_mecab: bytes = b"/usr/local/dic", userdic: bytes = b"") -> None:
         """OpenJTalk
@@ -16,7 +16,9 @@ class OpenJTalk:
         """
         pass
 
-    def run_frontend(self, text: str | bytes | bytearray, use_suwad_dict: bool = False) -> List[NJDFeature]:
+    def run_frontend(self, text: str | bytes | bytearray,
+                     use_suwad_dict: bool = False,
+                     dialect_rule: DialectRule ,speaking_style_rules: list[SpeakingStyleRule]) -> List[NJDFeature]:
         """Run OpenJTalk's text processing frontend"""
         pass
 
@@ -25,7 +27,8 @@ class OpenJTalk:
         pass
 
     def g2p(
-        self, text: str | bytes | bytearray, kana: bool = False, join: bool = True
+        self, text: str | bytes | bytearray, kana: bool = False, join: bool = True,
+        dialect_rule: DialectRule = DialectRule.Standard ,speaking_style_rules: list[SpeakingStyleRule] = []
     ) -> List[str] | str:
         """Grapheme-to-phoeneme (G2P) conversion (Cython implementation)"""
         pass
