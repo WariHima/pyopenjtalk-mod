@@ -297,7 +297,11 @@ setup(
             "types-decorator",
             "importlib-metadata<5.0",
         ],
-        "test": ["pytest"],
+        "test": ["pytest",
+                "tqdm",    
+                "nltk",
+                "jaconv"
+        ],
         "onnxruntime": ["onnxruntime"],
         "marine": ["marine-plus"],
     },
