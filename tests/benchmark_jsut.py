@@ -1,7 +1,10 @@
 # %%
 from pathlib import Path
 import re
+
 import pyopenjtalk
+from tqdm.autonotebook import tqdm
+from nltk.translate.bleu_score import SmoothingFunction, corpus_bleu
 
 __PYOPENJTALK_G2P_PROSODY_A1_PATTERN = re.compile(r"/A:([0-9\-]+)\+")
 __PYOPENJTALK_G2P_PROSODY_A2_PATTERN = re.compile(r"\+(\d+)\+")
@@ -108,73 +111,70 @@ def __pyopenjtalk_g2p_prosody(
 
     return phones
 
-text = Path('tests/src_acc/jsut.tsv').read_text(encoding = "utf-8")
-text = text.split("\n")
-
-label = []
-data = []
-
-
-for line in text:
-    accent = line.split("\t")[1]
-    new_acc = ""
-    for i in range(len(accent)):
-        if accent[i] in ("[", "]", "#", " ", "$", "_", "?", "^", "$"):
-            new_acc += accent[i]
-        else:
-            new_acc += "X"
-
-    cur_text = line.split("\t")[2]
-
-    data.append(cur_text)
-    label.append(new_acc)
-
-i = 0
-
-
-
-# %%
-from tqdm.autonotebook import tqdm
 
 def is_dic_file(file: Path) -> bool:
     supported_extensions = [".dic"]
     return file.suffix.lower() in supported_extensions
 
-input_dir = Path("./dic")
-dict_files = [file for file in input_dir.rglob("*") if is_dic_file(file)]
+def test_benchmark_accent():
 
-if dict_files != []:
-    for file in dict_files:
-        pyopenjtalk.update_global_jtalk_with_user_dict(str(file))
+    text = Path('tests/src_acc/jsut.tsv').read_text(encoding = "utf-8")
+    text = text.split("\n")
 
-ref = []
-hyp = []
-for i, d in enumerate(tqdm(data)):
-    cur_text = __pyopenjtalk_g2p_prosody(d)
-    cur_text = " ".join(cur_text)
-    new_text = ""
-    for i in range(len(cur_text)):
-        if cur_text[i] in ("[", "]", "#", " ", "$", "_", "?", "^", "$"):
-            new_text += cur_text[i]
-        else:
-            new_text += "X"
-            
-    hyp.append(list(new_text))
-    ref.append([list(label[i])])
+    label = []
+    data = []
 
-# %%
-from nltk.translate.bleu_score import SmoothingFunction, corpus_bleu
 
-smooth = SmoothingFunction()
+    for line in text:
+        accent = line.split("\t")[1]
+        new_acc = ""
+        for i in range(len(accent)):
+            if accent[i] in ("[", "]", "#", " ", "$", "_", "?", "^", "$"):
+                new_acc += accent[i]
+            else:
+                new_acc += "X"
 
-corpus_score_1 = corpus_bleu(ref, hyp, weights=(1, 0, 0, 0), smoothing_function=smooth.method1)
-corpus_score_2 = corpus_bleu(ref, hyp, weights=(0.5, 0.5, 0, 0), smoothing_function=smooth.method1)
-corpus_score_3 = corpus_bleu(ref, hyp, weights=(0.33, 0.33, 0.33, 0), smoothing_function=smooth.method1)
-corpus_score_4 = corpus_bleu(ref, hyp, smoothing_function=smooth.method1)
+        cur_text = line.split("\t")[2]
 
-# %%
-print("### score:")
-print(corpus_score_1)
-print(corpus_score_2)
-print(corpus_score_3)
-print(corpus_score_4)
+        data.append(cur_text)
+        label.append(new_acc)
+
+    i = 0
+
+    input_dir = Path("./dic")
+    dict_files = [file for file in input_dir.rglob("*") if is_dic_file(file)]
+
+    if dict_files != []:
+        for file in dict_files:
+            pyopenjtalk.update_global_jtalk_with_user_dict(str(file))
+
+    ref = []
+    hyp = []
+    for i, d in enumerate(tqdm(data)):
+        cur_text = __pyopenjtalk_g2p_prosody(d)
+        cur_text = " ".join(cur_text)
+        new_text = ""
+        for i in range(len(cur_text)):
+            if cur_text[i] in ("[", "]", "#", " ", "$", "_", "?", "^", "$"):
+                new_text += cur_text[i]
+            else:
+                new_text += "X"
+                
+        hyp.append(list(new_text))
+        ref.append([list(label[i])])
+
+    smooth = SmoothingFunction()
+
+    corpus_score_1 = corpus_bleu(ref, hyp, weights=(1, 0, 0, 0), smoothing_function=smooth.method1)
+    corpus_score_2 = corpus_bleu(ref, hyp, weights=(0.5, 0.5, 0, 0), smoothing_function=smooth.method1)
+    corpus_score_3 = corpus_bleu(ref, hyp, weights=(0.33, 0.33, 0.33, 0), smoothing_function=smooth.method1)
+    corpus_score_4 = corpus_bleu(ref, hyp, smoothing_function=smooth.method1)
+
+    print("### jsut accent score:")
+    print(corpus_score_1)
+    print(corpus_score_2)
+    print(corpus_score_3)
+    print(corpus_score_4)
+
+if __name__ == "__main__":
+    test_benchmark_accent()
