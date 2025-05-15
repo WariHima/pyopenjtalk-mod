@@ -14,9 +14,10 @@ import setuptools.command.build_py
 import setuptools.command.develop
 from setuptools import Extension, find_packages, setup
 
+
 platform_is_windows = sys.platform == "win32"
 
-version = "0.3.4-post10"
+version = "0.4.1-post3"
 
 msvc_extra_compile_args_config = [
     "/source-charset:utf-8",
@@ -61,8 +62,7 @@ def check_cmake_in_path():
     try:
         result = subprocess.run(
             ["cmake", "--version"],
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
+            capture_output=True,
             text=True,
         )
         if result.returncode == 0:
@@ -106,9 +106,7 @@ if not exists(join(src_top, "mecab", "src", "config.h")):
     os.makedirs(build_dir, exist_ok=True)
     os.chdir(build_dir)
 
-    # NOTE: The wrapped OpenJTalk does not depend on HTS_Engine,
-    # but since HTSEngine is included in CMake's dependencies, it refers to a dummy path.
-    r = subprocess.run(["cmake", "..", "-DHTS_ENGINE_INCLUDE_DIR=.", "-DHTS_ENGINE_LIB=dummy"])
+    r = subprocess.run(["cmake", ".."])
     r.check_returncode()
     os.chdir(cwd)
 
@@ -136,8 +134,8 @@ for s in [
 ext_modules = [
     Extension(
         name="pyopenjtalk.openjtalk",
-        sources=[join("pyopenjtalk", "openjtalk.pyx")] + all_src,
-        include_dirs=[np.get_include()] + include_dirs,
+        sources=[join("pyopenjtalk", "openjtalk.pyx"), *all_src],
+        include_dirs=[np.get_include(), *include_dirs],
         extra_compile_args=[],
         extra_link_args=[],
         language="c++",
@@ -159,7 +157,7 @@ all_htsengine_src = glob(join(htsengine_src_top, "lib", "*.c"))
 ext_modules += [
     Extension(
         name="pyopenjtalk.htsengine",
-        sources=[join("pyopenjtalk", "htsengine.pyx")] + all_htsengine_src,
+        sources=[join("pyopenjtalk", "htsengine.pyx"), *all_htsengine_src],
         include_dirs=[np.get_include(), join(htsengine_src_top, "include")],
         extra_compile_args=[],
         extra_link_args=[],
@@ -182,7 +180,7 @@ else:
         # version += "+" + sha[:7]
     except subprocess.CalledProcessError:
         pass
-    except IOError:  # FileNotFoundError for python 3
+    except OSError:  # FileNotFoundError for python 3
         pass
 
 
@@ -206,7 +204,7 @@ class develop(setuptools.command.develop.develop):
         setuptools.command.develop.develop.run(self)
 
 
-with open("README.md", "r", encoding="utf8") as fd:
+with open("README.md", encoding="utf8") as fd:
     long_description = fd.read()
 
 def install_dictionary(dictionary_path):
@@ -274,7 +272,6 @@ setup(
     install_requires=[
         "importlib_resources; python_version<'3.9'",
         "numpy>=1.24.0",
-        "onnxruntime",
         "sudachipy; python_version>='3.9'",
         "sudachipy<=0.6.8; python_version<'3.9'",
         "sudachidict_core",
@@ -293,18 +290,15 @@ setup(
         ],
         "dev": [
             "cython>=3.0",
-            "pysen",
+            "ruff",
             "taskipy",
             "types-setuptools",
-            "black>=19.19b0",
             "click",
-            "flake8>=3.7",
-            "flake8-bugbear",
-            "isort>=4.3",
             "types-decorator",
             "importlib-metadata<5.0",
         ],
         "test": ["pytest"],
+        "onnxruntime": ["onnxruntime"],
         "marine": ["marine-plus"],
     },
     classifiers=[
@@ -315,7 +309,6 @@ setup(
         "Programming Language :: Cython",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",

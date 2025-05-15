@@ -6,6 +6,8 @@ name: Python package
 on:
   push:
     branches: [ master ]
+    tags:
+      - 'v*'
   pull_request:
     branches: [ master ]
 
@@ -14,15 +16,12 @@ defaults:
     shell: bash
 
 jobs:
-  build:
-
+  test:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - os: ubuntu-latest
-            python-version: '3.8'
           - os: ubuntu-latest
             python-version: '3.9'
           - os: ubuntu-latest
@@ -34,19 +33,24 @@ jobs:
           - os: ubuntu-latest
             python-version: '3.13'
           - os: macos-latest
+            python-version: '3.9'
+          - os: macos-latest
             python-version: '3.10'
           - os: macos-latest
             python-version: '3.11'
           - os: macos-latest
             python-version: '3.12'
-          # - os: macos-latest
-          #   python-version: '3.13'
+          - os: macos-latest
+            python-version: '3.13'
+          - os: windows-latest
+            python-version: '3.9'
           - os: windows-latest
             python-version: '3.10'
           - os: windows-latest
             python-version: '3.11'
           - os: windows-latest
             python-version: '3.12'
+          # なぜか Python 3.13 だけ pytest 実行時に Windows fatal exception: access violation が発生するため当面無効化
           # - os: windows-latest
           #   python-version: '3.13'
 
@@ -62,11 +66,11 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --editable '.[dev,test,marine]'
-    - name: Lint with pysen
+        pip install --editable '.[dev,test,onnxruntime,marine]'
+    - name: Lint with Ruff
       if: ${{ !(matrix.os == 'macos-latest' && matrix.python-version == '3.11') }}
       run: |
-        python -X utf8 -m pysen run lint
+        python -X utf8 -m ruff check .
     - name: Test with pytest
       run: |
         pytest

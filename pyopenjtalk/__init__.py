@@ -2,21 +2,17 @@ from __future__ import annotations
 
 import atexit
 import os
-import sys
 from collections.abc import Callable, Generator
 from contextlib import ExitStack, contextmanager
+from importlib.resources import as_file, files
 from os.path import exists
 from pathlib import Path
 from threading import Lock
-from typing import Any, List, Tuple, TypeVar, Union
+from typing import Any, TypeVar, Union
 
 import numpy as np
 import numpy.typing as npt
 
-if sys.version_info >= (3, 9):
-    from importlib.resources import as_file, files
-else:
-    from importlib_resources import as_file, files
 
 try:
     from .version import __version__  # noqa
@@ -32,6 +28,7 @@ from .utils import (
     merge_njd_marine_features,
     modify_acc_after_chaining,
     modify_kanji_yomi,
+    process_odori_features,
     retreat_acc_nuc,
 )
 
@@ -57,7 +54,7 @@ DEFAULT_HTS_VOICE = str(
 
 # 複数の読みを持つ漢字のリスト
 MULTI_READ_KANJI_LIST = [
-    '風','何','観','方','出','他','時','上','下','君','手','嫌','表',
+    '風','何','観','方','出','時','上','下','君','手','嫌','表',
     '対','色','人','前','後','角','金','頭','筆','水','間','棚',
     # 以下、Wikipedia「同形異音語」からミスりそうな漢字を抜粋 (ただしこれらは NN 使わない限り完璧な判定は無理な気がする…)
     # Sudachi の方が不正確な '汚','通','臭','辛' は除外した
@@ -66,7 +63,8 @@ MULTI_READ_KANJI_LIST = [
     # 以下、Wikipedia「同形異音語」記事内「読み方が3つ以上ある同形異音語」より
     '空','性','体','等','生','止','堪','捩',
     # 以下、独自に追加
-    '家','縁','労',
+    '家','縁','労','中','高','低','気','要','退','面','色','主','術','直','片','緒','小','大',
+    # 他にも日付（月・火・水・木・金・土・日）も入るが、当面は入れない (金を除く)
 ]  # fmt: skip
 
 _T = TypeVar("_T")
@@ -115,7 +113,7 @@ def g2p(
     dialect_rule: DialectRule = DialectRule.Standard,
     speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
-) -> Union[List[str], str]:
+) -> Union[list[str], str]:
     """Grapheme-to-phoeneme (G2P) conversion
 
     This is just a convenient wrapper around `run_frontend`.
@@ -173,7 +171,7 @@ def load_marine_model(model_dir: Union[str, None] = None, dict_dir: Union[str, N
         _global_marine = Predictor(model_dir=model_dir, postprocess_vocab_dir=dict_dir)
 
 
-def estimate_accent(njd_features: List[NJDFeature]) -> List[NJDFeature]:
+def estimate_accent(njd_features: list[NJDFeature]) -> list[NJDFeature]:
     """Accent estimation using marine
 
     This function requires marine (https://github.com/6gsn/marine)
@@ -196,7 +194,7 @@ def estimate_accent(njd_features: List[NJDFeature]) -> List[NJDFeature]:
     return njd_features
 
 
-def modify_filler_accent(njd: List[NJDFeature]) -> List[NJDFeature]:
+def modify_filler_accent(njd: list[NJDFeature]) -> list[NJDFeature]:
     modified_njd = []
     is_after_filler = False
     for features in njd:
@@ -215,8 +213,8 @@ def modify_filler_accent(njd: List[NJDFeature]) -> List[NJDFeature]:
 
 
 def preserve_noun_accent(
-    input_njd: List[NJDFeature], predicted_njd: List[NJDFeature]
-) -> List[NJDFeature]:
+    input_njd: list[NJDFeature], predicted_njd: list[NJDFeature]
+) -> list[NJDFeature]:
     return_njd = []
     for f_input, f_pred in zip(input_njd, predicted_njd):
         if f_pred["pos"] == "名詞" and f_pred["string"] not in MULTI_READ_KANJI_LIST:
@@ -232,7 +230,7 @@ def extract_fullcontext(
     use_vanilla: bool = False,
     dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
-) -> List[str]:
+) -> list[str]:
     """Extract full-context labels from text
 
     Args:
@@ -255,10 +253,10 @@ def extract_fullcontext(
 
 
 def synthesize(
-    labels: Union[List[str], Tuple[Any, List[str]]],
+    labels: Union[list[str], tuple[Any, list[str]]],
     speed: float = 1.0,
     half_tone: float = 0.0,
-) -> Tuple[npt.NDArray[np.float64], int]:
+) -> tuple[npt.NDArray[np.float64], int]:
     """Run OpenJTalk's speech synthesis backend
 
     Args:
@@ -288,7 +286,7 @@ def tts(
     run_marine: bool = False,
     use_vanilla: bool = False,
     jtalk: Union[OpenJTalk, None] = None,
-) -> Tuple[npt.NDArray[np.float64], int]:
+) -> tuple[npt.NDArray[np.float64], int]:
     """Text-to-speech
 
     Args:
@@ -326,7 +324,7 @@ def run_frontend(
     use_suwad_dict: bool = False,
     dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
-) -> List[NJDFeature]:
+) -> list[NJDFeature]:
     """Run OpenJTalk's text processing frontend
 
     Args:
@@ -356,10 +354,11 @@ def run_frontend(
         njd_features = modify_kanji_yomi(text, njd_features, MULTI_READ_KANJI_LIST)
         njd_features = retreat_acc_nuc(njd_features)
         njd_features = modify_acc_after_chaining(njd_features)
+        njd_features = process_odori_features(njd_features, jtalk=jtalk)
     return njd_features
 
 
-def make_label(njd_features: List[NJDFeature], jtalk: Union[OpenJTalk, None] = None) -> List[str]:
+def make_label(njd_features: list[NJDFeature], jtalk: Union[OpenJTalk, None] = None) -> list[str]:
     """Make full-context label using features
 
     Args:
@@ -386,7 +385,7 @@ def mecab_dict_index(path: str, out_path: str, dn_mecab: Union[str, None] = None
         dn_mecab (optional. str): path to mecab dictionary
     """
     if not exists(path):
-        raise FileNotFoundError("no such file or directory: %s" % path)
+        raise FileNotFoundError(f"no such file or directory: {path}")
     if dn_mecab is None:
         dn_mecab = OPEN_JTALK_DICT_DIR.decode("utf-8")
     r = _mecab_dict_index(dn_mecab.encode("utf-8"), path.encode("utf-8"), out_path.encode("utf-8"))
@@ -397,7 +396,7 @@ def mecab_dict_index(path: str, out_path: str, dn_mecab: Union[str, None] = None
         raise RuntimeError("Failed to create user dictionary")
 
 
-def update_global_jtalk_with_user_dict(paths: Union[str, List[str]]) -> None:
+def update_global_jtalk_with_user_dict(paths: Union[str, list[str]]) -> None:
     """Update global openjtalk instance with the user dictionary
 
     Note that this will change the global state of the openjtalk module.
