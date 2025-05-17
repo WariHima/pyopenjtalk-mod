@@ -6,7 +6,7 @@ pyopenjtalk/open_jtalk_dic_utf_8-1.11/
 docs/generated
 sample.*
 .venv/
-
+.venv.bak
 #suwad dict unused contents
 pyopenjtalk/suwad_dictionary/lex.csv
 pyopenjtalk/suwad_dictionary/model.bin

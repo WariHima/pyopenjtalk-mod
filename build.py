@@ -1,0 +1,2 @@
+import pyopenjtalk
+pyopenjtalk.build_mecab_dictionary()

@@ -228,7 +228,7 @@ def install_dictionary(dictionary_path):
         Path(dictionary_path + "/vibrato_sys.dic").write_bytes(dict_content)
 
 
-install_dictionary(dictionary_path="./pyopenjtalk/suwad_dictionary")
+#install_dictionary(dictionary_path="./pyopenjtalk/suwad_dictionary")
 
 setup(
     name="pyopenjtalk-plus",
@@ -239,7 +239,7 @@ setup(
     author="Ryuichi Yamamoto",
     author_email="zryuichi@gmail.com",
     url="https://github.com/tsukumijima/pyopenjtalk-plus",
-    license="MIT",
+    license="AGPL-3.0-or-later",
     packages=find_packages(),
     package_data={
         "": [
@@ -263,7 +263,8 @@ setup(
             # ビルド後の wheel には ONNX 形式のモデルファイルのみを含める
             "yomi_model/*.onnx",
             "yomi_model/*.py",
-            "sbv2_hougen/*.py"
+            "sbv2_hougen/*.py",
+            "sbv2_e2k/*.py"
         ],
         "pyopenjtalk": ["py.typed", "*.pyi"],
     },
@@ -277,6 +278,9 @@ setup(
         "sudachidict_core",
         "fugashi-plus",
         "vibrato",
+        "e2k",
+        "num2words",
+        "jaconv"
     ],
     tests_require=["nose", "coverage"],
     extras_require={
@@ -289,6 +293,7 @@ setup(
             "jupyter",
         ],
         "dev": [
+            "mojimoji",
             "cython>=3.0",
             "ruff",
             "taskipy",
@@ -318,7 +323,6 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
-        "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development",
         "Intended Audience :: Science/Research",

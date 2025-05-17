@@ -33,6 +33,7 @@ from .utils import (
 )
 
 from .sbv2_hougen.hougen import DialectRule, SpeakingStyleRule
+from .sbv2_e2k.normalizer import normalize_text
 
 _file_manager = ExitStack()
 atexit.register(_file_manager.close)
@@ -44,7 +45,7 @@ _dic_dir_name = "dictionary"
 # defaults to the directory containing the dictionaries built into the package
 OPEN_JTALK_DICT_DIR = os.environ.get(
     "OPEN_JTALK_DICT_DIR",
-    str(_file_manager.enter_context(as_file(_pyopenjtalk_ref / _dic_dir_name))),
+    str(_file_manager.enter_context(as_file(_pyopenjtalk_ref / _dic_dir_name ))),
 ).encode("utf-8")
 
 # Default mei_normal.voice for HMM-based TTS
@@ -340,6 +341,8 @@ def run_frontend(
     Returns:
         List[NJDFeature]: features for NJDNode.
     """
+    text = normalize_text(text)
+
     if jtalk is not None:
         njd_features = jtalk.run_frontend(text, use_suwad_dict, dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
     else:
