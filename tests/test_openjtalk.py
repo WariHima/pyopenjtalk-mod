@@ -35,13 +35,13 @@ def test_hello_marine():
     labels = pyopenjtalk.make_label(njd_features)
     _print_results(njd_features, labels)
 
-"""
+
 def test_hello_suwad_dict():
     njd_features = pyopenjtalk.run_frontend("ダイアモンド　アーマー　イン　シュルカーボックス", use_suwad_dict=True)
     labels = pyopenjtalk.make_label(njd_features)
     _print_results(njd_features, labels)
     assert len(njd_features) == 4 , print(njd_features)
-"""
+
 
 def test_njd_features():
     njd_features = pyopenjtalk.run_frontend("こんにちは")
@@ -112,13 +112,12 @@ def test_njd_other_pron_mod():
     
     assert pron == "ヒガシダイニコードルダカユーロダカ"
 
-"""
+
 def test_speaking_tyle():
     njd_features = pyopenjtalk.run_frontend("バーニング",speaking_style_rules = [SpeakingStyleRule.ConvertBToV])
     pron = "".join(map(lambda f: f["pron"], njd_features))
     
     assert pron == "ヴァーニング"
-"""
 
 def test_jtalk():
     for text in [

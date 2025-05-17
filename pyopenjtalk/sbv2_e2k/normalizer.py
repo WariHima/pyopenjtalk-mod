@@ -361,7 +361,7 @@ __PUNCTUATION_CLEANUP_PATTERN = re.compile(
     # スラッシュは pyopenjtalk での形態素解析処理で重要なので、例外的に正規化後も残す (g2p 処理内で "." に変換される)
     # pyopenjtalk は「漢字の直後に2つ以上の連続する半角ハイフンがある場合」にその漢字の読みが取得できなくなる謎のバグがあるため、
     # 正規化処理でダッシュが変換されるなどして2つ以上の連続する半角ハイフンが生まれた場合、Long EM Dash に変換してから g2p 処理に渡す
-    + "".join(re.escape(p) for p in (PUNCTUATIONS + ["/", "—", "。", "、"]))
+    + "".join(re.escape(p) for p in (PUNCTUATIONS + ["/", "—", "。", "、",]))
     + r"]+"  # fmt: skip
 )
 
@@ -966,7 +966,7 @@ def __convert_english_to_katakana(text: str) -> str:
             #     f"Split conversion succeeded: {word} -> {part1}({kata1}) + {part2}({kata2})"
             # )
             #return kata1 + kata2
-            return part1 + part2
+            return part1 +" "+ part2
 
         return None
 
