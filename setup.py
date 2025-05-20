@@ -224,11 +224,14 @@ setup(
             "dictionary/pos-id.def",
             "dictionary/rewrite.def",
             "dictionary/right-id.def",
+            "user_dictionary/*.dic"
             "htsvoice/*.htsvoice",
             # オリジナルの Pickle 形式のモデルファイルは参照用に残してあるもの
             # ビルド後の wheel には ONNX 形式のモデルファイルのみを含める
             "yomi_model/*.onnx",
             "yomi_model/*.py",
+            "sbv2_hougen/*.py",
+            "sbv2_e2k/*.py",
         ],
         "pyopenjtalk": ["py.typed", "*.pyi"],
     },
@@ -240,6 +243,9 @@ setup(
         "sudachipy; python_version>='3.9'",
         "sudachipy<=0.6.8; python_version<'3.9'",
         "sudachidict_core",
+        "e2k",
+        "num2words",
+        "jaconv"
     ],
     tests_require=["nose", "coverage"],
     extras_require={

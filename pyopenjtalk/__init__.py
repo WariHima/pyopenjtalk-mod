@@ -32,12 +32,18 @@ from .utils import (
     retreat_acc_nuc,
 )
 
+from .sbv2_hougen.hougen import DialectRule, SpeakingStyleRule
+from .sbv2_e2k.normalizer import normalize_text
 
 _file_manager = ExitStack()
 atexit.register(_file_manager.close)
 
 _pyopenjtalk_ref = files(__name__)
 _dic_dir_name = "dictionary"
+
+_dict_jouyou_str = str( Path(_pyopenjtalk_ref / "user_dictionary/filler-jouyou.dic") )
+_dict_english_str = str( Path(_pyopenjtalk_ref / "user_dictionary/english.dic") )
+_default_user_dict = ",".join([_dict_jouyou_str, _dict_english_str])
 
 # Dictionary directory
 # defaults to the directory containing the dictionaries built into the package
@@ -95,7 +101,7 @@ def _global_instance_manager(
 
 
 # Global instance of OpenJTalk
-_global_jtalk = _global_instance_manager(lambda: OpenJTalk(dn_mecab=OPEN_JTALK_DICT_DIR))
+_global_jtalk = _global_instance_manager(lambda: OpenJTalk(dn_mecab=OPEN_JTALK_DICT_DIR, userdic=_default_user_dict.encode("utf-8")))
 # Global instance of HTSEngine
 # mei_normal.voice is used as default
 _global_htsengine = _global_instance_manager(lambda: HTSEngine(DEFAULT_HTS_VOICE))
@@ -109,6 +115,9 @@ def g2p(
     join: bool = True,
     run_marine: bool = False,
     use_vanilla: bool = False,
+    e2k: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard,
+    speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
 ) -> Union[list[str], str]:
     """Grapheme-to-phoeneme (G2P) conversion
@@ -132,7 +141,8 @@ def g2p(
     Returns:
         Union[List[str], str]: G2P result in 1) str if join is True 2) List[str] if join is False.
     """
-    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla, jtalk=jtalk)
+    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla, e2k=e2k,
+                                dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules, jtalk=jtalk)
 
     if not kana:
         labels = make_label(njd_features, jtalk=jtalk)
@@ -224,6 +234,8 @@ def extract_fullcontext(
     text: str,
     run_marine: bool = False,
     use_vanilla: bool = False,
+    e2k: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
 ) -> list[str]:
     """Extract full-context labels from text
@@ -241,8 +253,10 @@ def extract_fullcontext(
     Returns:
         List[str]: List of full-context labels
     """
-    njd_features = run_frontend(text, run_marine=run_marine, use_vanilla=use_vanilla, jtalk=jtalk)
-    return make_label(njd_features, jtalk=jtalk)
+    njd_features = run_frontend(
+        text, run_marine=run_marine, use_vanilla=use_vanilla, e2k=e2k,
+        dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
+    return make_label(njd_features)
 
 
 def synthesize(
@@ -314,6 +328,8 @@ def run_frontend(
     text: str,
     run_marine: bool = False,
     use_vanilla: bool = False,
+    e2k: bool = False,
+    dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
 ) -> list[NJDFeature]:
     """Run OpenJTalk's text processing frontend
@@ -331,12 +347,15 @@ def run_frontend(
     Returns:
         List[NJDFeature]: features for NJDNode.
     """
+    if e2k:
+        text = normalize_text(text)
+
     if jtalk is not None:
-        njd_features = jtalk.run_frontend(text)
+        njd_features = jtalk.run_frontend(text,  e2k=e2k, dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
     else:
         global _global_jtalk
         with _global_jtalk() as jtalk:
-            njd_features = jtalk.run_frontend(text)
+            njd_features = jtalk.run_frontend(text,  e2k=e2k, dialect_rule=dialect_rule, speaking_style_rules=speaking_style_rules)
     if run_marine:
         pred_njd_features = estimate_accent(njd_features)
         njd_features = preserve_noun_accent(njd_features, pred_njd_features)
@@ -398,10 +417,13 @@ def update_global_jtalk_with_user_dict(paths: Union[str, list[str]]) -> None:
     """
 
     if isinstance(paths, str):
-        paths_str = paths
+        
+
+        paths_str = f"{_dict_jouyou_str},{_dict_english_str},{paths}"
         paths = paths.split(",")
     else:
         paths_str = ",".join(paths)
+        paths_str = f"{_dict_jouyou_str},{_dict_english_str},{paths_str}"
 
     # 全てのユーザー辞書パスの存在を確認
     for p in paths:

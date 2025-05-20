@@ -5,6 +5,7 @@
 
 import errno
 import numpy as np
+import re
 from contextlib import contextmanager
 from threading import Lock
 
@@ -27,6 +28,8 @@ from .openjtalk.jpcommon cimport JPCommon_refresh, JPCommon_clear
 from .openjtalk.text2mecab cimport text2mecab
 from .openjtalk.mecab2njd cimport mecab2njd
 from .openjtalk.njd2jpcommon cimport njd2jpcommon
+
+from .sbv2_hougen.hougen import DialectRule, apply_dialect_diff, apply_keihan_accent_diff
 
 cdef njd_node_get_string(_njd.NJDNode* node):
     return (<bytes>(_njd.NJDNode_get_string(node))).decode("utf-8")
@@ -205,7 +208,7 @@ cdef class OpenJTalk:
         return Mecab_load_with_userdic(self.mecab, dn_mecab, userdic)
 
     @_lock_manager()
-    def run_frontend(self, text):
+    def run_frontend(self, text, use_suwad_dict: bool = False, e2k:bool = False, dialect_rule =DialectRule.Standard, speaking_style_rules = []):
         """Run OpenJTalk's text processing frontend
         """
         cdef char buff[8192]
@@ -253,20 +256,68 @@ cdef class OpenJTalk:
         cdef char** new_mecab_morphs = <char**>&cint_morphs[0]
         with nogil:
             mecab2njd(self.njd, new_mecab_morphs, new_size)
-
             _njd.njd_set_pronunciation(self.njd)
 
         feature = njd2feature(self.njd)
         feature = apply_original_rule_before_chaining(feature)
+        feature = apply_other_pron_mod_rule(feature)
+        
+
+
+        kata_list = []
+        accent_list = []
+        pos_list = [] 
+        mora_list = []
+
+        if dialect_rule != DialectRule.Standard or speaking_style_rules != []:
+
+            for f in feature:
+                kata_list.append(f["pron"])
+                accent_list.append(f["acc"])
+                pos_list.append(f["pos"])
+                mora_list.append(f["mora_size"])
+            
+            kata_list, accent_list = apply_dialect_diff(
+                    kata_list,
+                    accent_list,
+                    pos_list,
+                    dialect_rule,
+                    speaking_style_rules
+                    )
+                
+            if dialect_rule == DialectRule.Kansai:
+                accent_list = apply_keihan_accent_diff(
+                    kata_list,
+                    accent_list,
+                    pos_list,
+                )
+
+            for i in range(len(feature)):
+
+                feature[i]["pron"] = kata_list[i]
+                feature[i]["acc"] = accent_list[i]
+            
         NJD_refresh(self.njd)
         feature2njd(self.njd, feature)
+        if dialect_rule != DialectRule.Kansai:
+            with nogil:
+                _njd.njd_set_digit(self.njd)
+                _njd.njd_set_accent_phrase(self.njd)
+            
+                _njd.njd_set_accent_type(self.njd)
 
-        with nogil:
-            _njd.njd_set_digit(self.njd)
-            _njd.njd_set_accent_phrase(self.njd)
-            _njd.njd_set_accent_type(self.njd)
-            _njd.njd_set_unvoiced_vowel(self.njd)
-            _njd.njd_set_long_vowel(self.njd)
+                _njd.njd_set_unvoiced_vowel(self.njd)
+                _njd.njd_set_long_vowel(self.njd)
+
+        else:
+            with nogil:
+                _njd.njd_set_digit(self.njd)
+                _njd.njd_set_accent_phrase(self.njd)
+            
+                _njd.njd_set_unvoiced_vowel(self.njd)
+                _njd.njd_set_long_vowel(self.njd)
+
+
         feature = njd2feature(self.njd)
 
         # Note that this will release memory for njd feature
@@ -300,10 +351,10 @@ cdef class OpenJTalk:
 
         return labels
 
-    def g2p(self, text, kana=False, join=True):
+    def g2p(self, text, kana=False, join=True, dialect_rule =DialectRule.Standard, speaking_style_rules = []):
         """Grapheme-to-phoeneme (G2P) conversion (Cython implementation)
         """
-        njd_features = self.run_frontend(text)
+        njd_features = self.run_frontend(text,dialect_rule, speaking_style_rules )
 
         if not kana:
             labels = self.make_label(njd_features)
@@ -395,3 +446,55 @@ def apply_original_rule_before_chaining(njd_features):
             njd_features[i+1]["chain_flag"] = 1
 
     return njd_features
+
+def apply_other_pron_mod_rule(njd_features):
+
+    """この実装での連濁化のルール
+    ここでは特殊なもののみ随時追加方式で実装する
+    先頭の文字の最後が "っん" 以外すべての場合
+    先頭が　かさた行以外
+
+    wikipediaより
+    このうちカ行・サ行・タ行は単純な有声化だが、ハ行は日本語の歴史において /p/→ /ɸ/ → /h/ の変化（唇音退化）が起きたため変則的になっている。
+
+    次に示すように、連濁は、無声子音が母音（有声音）に挟まれた時に、隣りの音の特徴に影響される同化現象であると理解されている[要出典]。"""
+
+    
+    """＜○○高（高校）と読ませるアルゴリズム＞
+    前が
+    漢字のみで構成されているもの
+    もしくは数詞でなくフィラーか名詞の場合
+
+    後にだいたい名詞以外の
+    助詞、動詞、形容詞などや
+    後ろが漢字のみで構成されてない名詞
+    が続く場合に　こう　と読ませる
+
+    こうとよむばあい　連濁化しない"""
+    KANJI_PATTERN = re.compile(r"[\u4E00-\u9FFF\u3400-\u4DBF\u3005]+")
+
+    
+    for i, njd in enumerate(njd_features[1:]):
+        if njd_features[i]["string"] == "高" :
+            if njd_features[i-1]["pos"] in ["名詞"] and KANJI_PATTERN.fullmatch( njd_features[i-1]["string"] ):
+                njd_features[i]["pron"] = "コー"
+    return njd_features
+    
+    """＜何を読み分けるアルゴリズム＞
+    参考用
+    何　の後ろがひらがなで一文字の助詞でないばあい何を”なん”と読むことが多い
+    ホワイトリスト形式で追加していく
+
+    予想されるパターン
+    何じゃ　なんじゃ
+    何が何でも　＝　なにがなんでも　
+    何とも　＝　なんとも
+    何て　＝　なんてこと
+    何で　＝　なんで
+    そもそも　なん　とよませたいときはひらがなで書くことのほうが多いが
+    
+    for i, njd in enumerate(njd_features[:-1]):
+        if njd_features[i]["string"] == "何" and njd_features[i+1]["string"] in ["でも", "じゃ", "とも", "て", "で"] :
+            njd_features[i]["pron"] = "ナン"
+    
+    """
