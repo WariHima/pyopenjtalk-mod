@@ -205,15 +205,15 @@ with open("README.md", encoding="utf8") as fd:
     long_description = fd.read()
 
 setup(
-    name="pyopenjtalk-plus",
+    name="pyopenjtalk-agpl3",
     version=version,
     description="A Python wrapper for OpenJTalk with additional improvements",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    author="Ryuichi Yamamoto",
+    author="WariHima",
     author_email="zryuichi@gmail.com",
     url="https://github.com/tsukumijima/pyopenjtalk-plus",
-    license="MIT",
+    license="AGPL-3.0",
     packages=find_packages(),
     package_data={
         "": [
@@ -283,7 +283,6 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
-        "License :: OSI Approved :: MIT License",
         "Topic :: Scientific/Engineering",
         "Topic :: Software Development",
         "Intended Audience :: Science/Research",
