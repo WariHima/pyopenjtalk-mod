@@ -224,7 +224,7 @@ setup(
             "dictionary/pos-id.def",
             "dictionary/rewrite.def",
             "dictionary/right-id.def",
-            "user_dictionary/*.dic"
+            "user_dictionary/*.dic",
             "htsvoice/*.htsvoice",
             # オリジナルの Pickle 形式のモデルファイルは参照用に残してあるもの
             # ビルド後の wheel には ONNX 形式のモデルファイルのみを含める
