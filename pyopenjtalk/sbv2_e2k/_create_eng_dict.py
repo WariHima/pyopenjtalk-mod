@@ -1,19 +1,17 @@
 from pathlib import Path
 from pyopenjtalk.sbv2_e2k.katakana_map import KATAKANA_MAP
-
-import mojimoji
+import re
 
 """
 nhk日本語アクセント辞書　カタカナのアクセント推定より抜粋
 """
-
+ONLY_KATAKANA_PATTERN = re.compile("^[ァ-ワヰヱヲンヴー]+$")
 KATAKANA_MAP_ITEM = KATAKANA_MAP.items()
 youon_list = ["ァ", "ィ", "ゥ", "ェ" ,"ォ","ャ","ュ","ョ"]
 
 out = []
 for i in KATAKANA_MAP_ITEM:
     surface = i[0]
-    #surface = mojimoji.han_to_zen(surface)
     pron = i[1]
 
     mora = pron 
@@ -30,8 +28,9 @@ for i in KATAKANA_MAP_ITEM:
     else:
         accent = 1
     
-    line = f"{pron},2,2,8000,フィラー,*,*,*,*,*,{pron},{pron},{pron},{accent}/{mora},*"
-    out.append(line)
+    if ONLY_KATAKANA_PATTERN.fullmatch(pron):
+        line = f"{pron},2,2,-3000,フィラー,*,*,*,*,*,{pron},{pron},{pron},{accent}/{mora},*"
+        out.append(line)
 
 out = "\n".join(out)
-Path( "english.csv" ).write_text(out, encoding = "utf-8")
+Path( "./pyopenjtalk/user_dictionary/english.csv" ).write_text(out, encoding = "utf-8")
