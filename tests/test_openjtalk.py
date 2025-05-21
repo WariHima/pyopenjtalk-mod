@@ -1,6 +1,8 @@
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
+import pyopenjtalk
+from pyopenjtalk.sbv2_hougen.hougen import SpeakingStyleRule
 import pytest
 
 import pyopenjtalk
@@ -20,6 +22,11 @@ def test_hello():
     njd_features = pyopenjtalk.run_frontend("こんにちは")
     labels = pyopenjtalk.make_label(njd_features)
     _print_results(njd_features, labels)
+
+def test_eng():
+    njd_features = pyopenjtalk.run_frontend("hello how are you?", e2k=True)
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    assert pron == "ハロー．ハウ．アー．ユー？"
 
 
 def test_hello_marine():
@@ -92,6 +99,18 @@ def test_fullcontext_marine():
     for a, b in zip(labels, labels2):
         assert a == b
 
+def test_njd_other_pron_mod():
+    njd_features = pyopenjtalk.run_frontend("東第二高　ドル高　ユーロ高")
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    
+    assert pron == "ヒガシダイニコードルコウユーロダカ"
+
+
+def test_speaking_tyle():
+    njd_features = pyopenjtalk.run_frontend("バーニング",speaking_style_rules = [SpeakingStyleRule.ConvertBToV])
+    pron = "".join(map(lambda f: f["pron"], njd_features))
+    
+    assert pron == "ヴァーニング"
 
 def test_jtalk():
     for text in [
@@ -202,7 +221,8 @@ def test_g2p_nani_model():
 def test_userdic():
     for text, expected in [
         ("nnmn", "n a n a m i N"),
-        ("GNU", "g u n u u"),
+        #("GNU", "g u n u u"), 
+        # (GNUは追加辞書に追加済です)
     ]:
         p = pyopenjtalk.g2p(text)
         assert p != expected
@@ -223,6 +243,8 @@ def test_userdic():
     ]:
         p = pyopenjtalk.g2p(text)
         assert p == expected
+
+    pyopenjtalk.unset_user_dict()
 
 
 def test_multithreading():
