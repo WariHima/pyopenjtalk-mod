@@ -41,9 +41,16 @@ atexit.register(_file_manager.close)
 _pyopenjtalk_ref = files(__name__)
 _dic_dir_name = "dictionary"
 
-_dict_jouyou_str = str( Path(_pyopenjtalk_ref / "user_dictionary/filler-jouyou.dic") )
-_dict_english_str = str( Path(_pyopenjtalk_ref / "user_dictionary/english.dic") )
-_default_user_dict = ",".join([_dict_jouyou_str, _dict_english_str])
+_user_dic_dir = Path(_pyopenjtalk_ref / "user_dictionary") 
+
+def is_dic_file(file: Path) -> bool:
+    supported_extensions = [".dic"]
+    return file.suffix.lower() in supported_extensions
+
+
+_dic_files = [str(file) for file in _user_dic_dir.rglob("*") if is_dic_file(file)]
+
+_default_user_dict = ",".join(_dic_files)
 
 # Dictionary directory
 # defaults to the directory containing the dictionaries built into the package
@@ -419,11 +426,11 @@ def update_global_jtalk_with_user_dict(paths: Union[str, list[str]]) -> None:
     if isinstance(paths, str):
         
 
-        paths_str = f"{_dict_jouyou_str},{_dict_english_str},{paths}"
+        paths_str = f"{_default_user_dict},{paths}"
         paths = paths.split(",")
     else:
         paths_str = ",".join(paths)
-        paths_str = f"{_dict_jouyou_str},{_dict_english_str},{paths_str}"
+        paths_str = f"{_default_user_dict},{paths_str}"
 
     # 全てのユーザー辞書パスの存在を確認
     for p in paths:
