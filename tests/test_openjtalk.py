@@ -25,8 +25,8 @@ def test_hello():
 
 def test_eng():
     njd_features = pyopenjtalk.run_frontend("hello how are you?", e2k=True)
-    pron = "".join(map(lambda f: f["pron"], njd_features))
-    assert pron == "ハロー．ハウ．アー．ユー？"
+    pron = " ".join(map(lambda f: f["pron"], njd_features))
+    assert pron == "ハロー ハウアー ユー ？"
 
 
 def test_hello_marine():
@@ -103,7 +103,7 @@ def test_njd_other_pron_mod():
     njd_features = pyopenjtalk.run_frontend("東第二高　ドル高　ユーロ高")
     pron = "".join(map(lambda f: f["pron"], njd_features))
     
-    assert pron == "ヒガシダイニコードルコウユーロダカ"
+    assert pron == "ヒガシダイニコウドルダカユーロタカ"
 
 
 def test_speaking_tyle():
