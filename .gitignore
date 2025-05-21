@@ -6,7 +6,8 @@ pyopenjtalk/open_jtalk_dic_utf_8-1.11/
 docs/generated
 sample.*
 .venv/
-
+unuse
+private_resource
 # Created by https://www.gitignore.io
 
 ### Python ###

@@ -5,7 +5,6 @@ import pyopenjtalk
 from pyopenjtalk.sbv2_hougen.hougen import SpeakingStyleRule
 import pytest
 
-import pyopenjtalk
 from pyopenjtalk import NJDFeature
 
 
