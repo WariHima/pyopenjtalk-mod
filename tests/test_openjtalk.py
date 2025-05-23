@@ -23,7 +23,7 @@ def test_hello():
     _print_results(njd_features, labels)
 
 def test_eng():
-    njd_features = pyopenjtalk.run_frontend("hello how are you?", e2k=True)
+    njd_features = pyopenjtalk.run_frontend("hello how are you?",)
     pron = " ".join(map(lambda f: f["pron"], njd_features))
     assert pron == "ハロー ハウアー ユー ？"
 

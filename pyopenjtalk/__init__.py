@@ -241,7 +241,7 @@ def extract_fullcontext(
     text: str,
     run_marine: bool = False,
     use_vanilla: bool = False,
-    e2k: bool = False,
+    e2k: bool = True,
     dialect_rule: DialectRule = DialectRule.Standard, speaking_style_rules: list[SpeakingStyleRule] = [],
     jtalk: Union[OpenJTalk, None] = None,
 ) -> list[str]:
