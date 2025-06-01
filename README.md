@@ -1,4 +1,4 @@
-# pyopenjtalk-plus
+# pyopenjtalk-mod
 
 [![PyPI](https://img.shields.io/pypi/v/pyopenjtalk-plus.svg)](https://pypi.python.org/pypi/pyopenjtalk-plus)
 [![Python package](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml)
