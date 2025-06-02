@@ -4,7 +4,10 @@
 [![Python package](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 
-pyopenjtalk-plus は、各フォークでの改善を一つのコードベースにまとめ、さらなる改善を加えることを目的とした、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) の派生ライブラリです。
+pyopenjtalk-modは[pyopenjtalk-plus](https://github.com/tsukumijima/pyopenjtalk-plus)をベースに改造することを目的とした、pyopenjtalkの派生ライブラリです
+pyopenjtalkの代替品として性能向上が期待できますが、開発頻度が高いため、pyopenjtalk-plusとの互換性は考えていません
+
+ちなみにpyopenjtalk-plus は、各フォークでの改善を一つのコードベースにまとめ、さらなる改善を加えることを目的とした、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) の派生ライブラリらしいです。
 
 
 
