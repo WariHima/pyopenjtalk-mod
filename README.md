@@ -16,7 +16,7 @@ pyopenjtalkの代替品として性能向上が期待できますが、開発頻
 下記コマンドを実行して、ライブラリをインストールできます。
 
 ```bash
-pip install pyopenjtalk-plus
+pip install pyopenjtalk-mod
 ```
 
 ## Development
