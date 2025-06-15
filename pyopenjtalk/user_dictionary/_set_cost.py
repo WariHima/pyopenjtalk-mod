@@ -4,8 +4,10 @@
 
 # def set sort_cost1():
 
-from tqdm import tqdm
 from pathlib import Path
+
+from tqdm import tqdm
+
 
 """
 openjtalk本体辞書のコストを計算するコードのつもりだったが個別の追加辞書に適用した方がよいかもしれない
@@ -16,6 +18,8 @@ openjtalk本体辞書のコストを計算するコードのつもりだった�
 上の文字が2文字以上でかつ現在の文字に含まれる場合
 現在の文字のコストを上の文字のコストに１引いたものにする(定数はお好みで、というより試しながらやるしかない)
 """
+
+
 def is_csv_file(file: Path) -> bool:
     supported_extensions = [".csv"]
     return file.suffix.lower() in supported_extensions
@@ -25,7 +29,6 @@ input_dir_path = Path("pyopenjtalk/user_dict_src")
 csv_files = [file for file in input_dir_path.rglob("*") if is_csv_file(file)]
 
 for file in csv_files:
-
     data_list = file.read_text(encoding="utf-8").split("\n")
     data_list.sort(reverse=True)
 
