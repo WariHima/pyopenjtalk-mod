@@ -42,10 +42,10 @@ The python package relies on cython to make python bindings for open_jtalk and h
 
 ```bash
 # submodule ごとリポジトリを clone
-git clone --recursive https://github.com/tsukumijima/pyopenjtalk-plus.git
+git clone --recursive https://github.com/tsukumijima/pyopenjtalk-mod.git
 
 #or
-git clone --recursive https://github.com/tsukumijima/pyopenjtalk-plus.git
+git clone --recursive https://github.com/tsukumijima/pyopenjtalk-mod.git
 git submodule update --recursive --init
 
 cd pyopenjtalk-plus
@@ -89,11 +89,6 @@ The package consists of two core components:
 - The package also uses the [modified version of hts_engine_API](https://github.com/r9y9/hts_engine_API). The same applies as above.
 
 Before using the pyopenjtalk package, please have a look at the LICENSE for the two software.
-
-
-## Development
-
-To build the package locally, you will need to make sure to clone open_jtalk and hts_engine_API.
 
 
 ## Quick demo
