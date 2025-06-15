@@ -1,6 +1,6 @@
 # pyopenjtalk-mod
 
-[![PyPI](https://img.shields.io/pypi/v/pyopenjtalk-plus.svg)](https://pypi.python.org/pypi/pyopenjtalk-plus)
+[![PyPI](https://img.shields.io/pypi/v/pyopenjtalk-mod.svg)](https://pypi.python.org/pypi/pyopenjtalk-mod)
 [![Python package](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml/badge.svg)](https://github.com/tsukumijima/pyopenjtalk-plus/actions/workflows/ci.yml)
 [![License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
 
