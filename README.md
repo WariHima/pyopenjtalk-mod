@@ -20,6 +20,22 @@ pyopenjtalkの代替品として性能向上が期待できますが、開発頻
 pip install pyopenjtalk-mod
 ```
 
+
+
+## Supported platforms
+
+- Linux
+- Mac OSX
+- Windows (MSVC) (see [this PR](https://github.com/r9y9/pyopenjtalk/pull/13))
+
+## Build requirements
+
+The python package relies on cython to make python bindings for open_jtalk and hts_engine_API. You must need the following tools to build and install pyopenjtalk:
+
+- C/C++ compilers (to build C/C++ extentions)
+- cmake
+- cython
+
 ## Development
 
 開発環境は macOS / Linux 、Python バージョンは 3.11 が前提です。
@@ -27,6 +43,11 @@ pip install pyopenjtalk-mod
 ```bash
 # submodule ごとリポジトリを clone
 git clone --recursive https://github.com/tsukumijima/pyopenjtalk-plus.git
+
+#or
+git clone --recursive https://github.com/tsukumijima/pyopenjtalk-plus.git
+git submodule update --recursive --init
+
 cd pyopenjtalk-plus
 
 # ライブラリ自身とその依存関係を .venv/ 以下の仮想環境にインストールし、開発環境を構築
@@ -52,18 +73,8 @@ task build
 task clean
 ```
 
-下記ならびに [docs/](docs/) 以下のドキュメントは、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) 本家のドキュメントを改変なしでそのまま引き継いでいます。  
-これらのドキュメントの内容が pyopenjtalk-plus にも通用するかは保証されません。
+[docs/](docs/) 以下のドキュメントは、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) 本家のドキュメントを改変なしでそのまま引き継いでいます。  
 
--------
-
-# pyopenjtalk
-
-[![PyPI](https://img.shields.io/pypi/v/pyopenjtalk.svg)](https://pypi.python.org/pypi/pyopenjtalk)
-[![Python package](https://github.com/r9y9/pyopenjtalk/actions/workflows/ci.yaml/badge.svg)](https://github.com/r9y9/pyopenjtalk/actions/workflows/ci.yaml)
-[![Build Status](https://app.travis-ci.com/r9y9/pyopenjtalk.svg?branch=master)](https://app.travis-ci.com/r9y9/pyopenjtalk)
-[![License](http://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat)](LICENSE.md)
-[![DOI](https://zenodo.org/badge/143748865.svg)](https://zenodo.org/badge/latestdoi/143748865)
 
 A python wrapper for [OpenJTalk](http://open-jtalk.sp.nitech.ac.jp/).
 
@@ -79,34 +90,11 @@ The package consists of two core components:
 
 Before using the pyopenjtalk package, please have a look at the LICENSE for the two software.
 
-## Build requirements
-
-The python package relies on cython to make python bindings for open_jtalk and hts_engine_API. You must need the following tools to build and install pyopenjtalk:
-
-- C/C++ compilers (to build C/C++ extentions)
-- cmake
-- cython
-
-## Supported platforms
-
-- Linux
-- Mac OSX
-- Windows (MSVC) (see [this PR](https://github.com/r9y9/pyopenjtalk/pull/13))
-
 
 ## Development
 
 To build the package locally, you will need to make sure to clone open_jtalk and hts_engine_API.
 
-```
-git submodule update --recursive --init
-```
-
-and then run
-
-```
-pip install -e .
-```
 
 ## Quick demo
 
