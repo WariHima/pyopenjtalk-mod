@@ -9,14 +9,15 @@ pyopenjtalkの代替品として性能向上が期待できますが、開発頻
 
 ちなみにpyopenjtalk-plus は、各フォークでの改善を一つのコードベースにまとめ、さらなる改善を加えることを目的とした、[pyopenjtalk](https://github.com/r9y9/pyopenjtalk) の派生ライブラリらしいです。
 
-
+## version log
+[wiki](https://github.com/WariHima/pyopenjtalk-mod/wiki)にあります
 
 ## Installation
 
 下記コマンドを実行して、ライブラリをインストールできます。
 
 ```bash
-pip install pyopenjtalk-plus
+pip install pyopenjtalk-mod
 ```
 
 ## Development
