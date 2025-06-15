@@ -93,11 +93,6 @@ The python package relies on cython to make python bindings for open_jtalk and h
 - Mac OSX
 - Windows (MSVC) (see [this PR](https://github.com/r9y9/pyopenjtalk/pull/13))
 
-## Installation
-
-```
-pip install pyopenjtalk
-```
 
 ## Development
 
